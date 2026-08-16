@@ -195,4 +195,5 @@ Projet personnel, publié pour consultation. Aucune licence libre n'est accordé
   <sub>Construit sur un Raspberry Pi 3B+, parce qu'il était déjà allumé.</sub>
 </p>
 #   t l p r i c e  
+ #   t l p r i c e  
  
