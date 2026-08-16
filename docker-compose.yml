@@ -1,0 +1,62 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    # Le HEALTHCHECK lui-meme est defini dans le Dockerfile : il suit donc
+    # l image, y compris sur le Pi qui utilise "image:" et non "build:".
+    # Ce label dit a autoheal (ci-dessous) de surveiller ce conteneur.
+    labels:
+      autoheal: "true"
+    ports:
+      - "8082:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      TLPRICE_CLE_CHIFFREMENT: ${TLPRICE_CLE_CHIFFREMENT}
+      TLPRICE_REDIRECT_URL: ${TLPRICE_REDIRECT_URL}
+      TLPRICE_CONNEXION_DUREE_HEURES: ${TLPRICE_CONNEXION_DUREE_HEURES:-48}
+      TLPRICE_VAPID_CLE_PUBLIQUE: ${TLPRICE_VAPID_CLE_PUBLIQUE}
+      TLPRICE_VAPID_CLE_PRIVEE: ${TLPRICE_VAPID_CLE_PRIVEE}
+      TLPRICE_VAPID_SUJET: ${TLPRICE_VAPID_SUJET:-mailto:contact@tlprice.local}
+      DB_HOST: db
+      DB_NAME: tlprice
+      DB_USER: tlprice
+      DB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - donnees_app:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: tlprice
+      POSTGRES_USER: tlprice
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - donnees_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tlprice"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Docker marque un conteneur "unhealthy" mais ne le redemarre pas de
+  # lui-meme : restart: unless-stopped ne couvre que la mort du processus.
+  # Ce petit conteneur comble le trou — il surveille les conteneurs portant
+  # le label autoheal et redemarre ceux qui passent unhealthy.
+  # Il a besoin du socket Docker, monte en lecture seule.
+  autoheal:
+    image: willfarrell/autoheal:latest
+    restart: unless-stopped
+    environment:
+      AUTOHEAL_CONTAINER_LABEL: autoheal
+      AUTOHEAL_INTERVAL: 30
+      AUTOHEAL_START_PERIOD: 300
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+volumes:
+  donnees_app:
+  donnees_db:

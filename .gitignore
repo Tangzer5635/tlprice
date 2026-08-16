@@ -1,0 +1,25 @@
+# Secrets — c est le manque de ce fichier qui a laisse le .env de production
+# partir dans une archive. Il contient la cle AES, le mot de passe PostgreSQL
+# et la cle privee VAPID : il ne doit sortir d ici sous aucune forme.
+.env
+*.pem
+
+# Build
+backend/target/
+frontend/node_modules/
+frontend/dist/
+
+# Base H2 locale + cle de chiffrement auto-generee
+backend/data/
+
+# Logs
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Systeme
+.DS_Store
+Thumbs.db

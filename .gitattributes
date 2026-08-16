@@ -1,0 +1,7 @@
+# Normalise les fins de ligne : le projet est edite sous Windows et deploye
+# sous Linux, sans ca chaque commit repasse tout le fichier en modifie.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
+*.pem binary

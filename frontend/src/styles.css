@@ -1,0 +1,2118 @@
+/* ============ tlprice — themes clair + sombre, ticker mono ============ */
+
+:root,
+:root[data-theme="clair"] {
+  --brume: #eff3f1;
+  --papier: #ffffff;
+  --encre: #14201b;
+  --encre-douce: #5a6b64;
+  --filet: #d9e2dd;
+  --credit: #157a55;
+  --debit: #b33a2b;
+  --accent: #0e5a4a;
+  --accent-clair: #e3efe9;
+  --hero-fond: #ffffff;
+  --alerte-fond: #fdf1ef;
+  --alerte-bord: #b33a2b;
+  --interrupteur-off: #cfd8d3;
+}
+
+:root[data-theme="sombre"] {
+  --brume: #0f1613;
+  --papier: #182320;
+  --encre: #e7ede9;
+  --encre-douce: #92a19b;
+  --filet: #2a3733;
+  --credit: #4dbf90;
+  --debit: #e8735f;
+  --accent: #5fc0a2;
+  --accent-clair: #1f322b;
+  --hero-fond: #1b2925;
+  --alerte-fond: #2e1c18;
+  --alerte-bord: #e8735f;
+  --interrupteur-off: #38463f;
+}
+
+:root {
+  --police-titres: "Archivo", system-ui, sans-serif;
+  --police-montants: "IBM Plex Mono", ui-monospace, monospace;
+  --police-texte: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--brume);
+  color: var(--encre);
+  font-family: var(--police-texte);
+  font-size: 15px;
+  line-height: 1.5;
+  color-scheme: light dark;
+}
+
+/* ---------- structure ---------- */
+
+.app { max-width: 880px; margin: 0 auto; padding: 0 20px 80px; }
+
+.entete {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--filet);
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.marque {
+  font-family: var(--police-titres);
+  font-weight: 800;
+  font-stretch: 110%;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+
+.marque.grande { font-size: 34px; }
+.marque-point { color: var(--credit); }
+
+.nav { display: flex; gap: 4px; flex: 1; overflow-x: auto; }
+
+.nav-lien {
+  padding: 7px 14px;
+  border-radius: 999px;
+  text-decoration: none;
+  color: var(--encre-douce);
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.nav-lien:hover { color: var(--encre); }
+.nav-lien.actif { background: var(--encre); color: var(--brume); }
+
+/* ---------- hero du tableau de bord ---------- */
+
+.bandeau-alerte {
+  background: var(--alerte-fond);
+  border-left: 3px solid var(--alerte-bord);
+  padding: 12px 16px;
+  border-radius: 0 10px 10px 0;
+  margin-bottom: 16px;
+  color: var(--debit);
+}
+
+.hero {
+  background: var(--hero-fond);
+  border: 1px solid var(--filet);
+  border-radius: 16px;
+  padding: 32px 28px;
+  margin-bottom: 24px;
+}
+
+.hero-eyebrow {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--encre-douce);
+}
+
+.hero-montant {
+  margin: 0;
+  font-family: var(--police-montants);
+  font-weight: 600;
+  font-size: clamp(40px, 9vw, 64px);
+  letter-spacing: -0.03em;
+  color: var(--credit);
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-montant.negatif { color: var(--debit); }
+
+.hero-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+
+.edition-solde { display: inline-flex; align-items: center; gap: 8px; }
+.edition-solde input { width: 120px; }
+
+/* ---------- etiquettes ---------- */
+
+.etiquette {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--encre-douce);
+  margin-right: 4px;
+}
+
+.puce {
+  border: 1px solid var(--filet);
+  background: var(--papier);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--encre-douce);
+  font-family: inherit;
+}
+
+.puce:hover { border-color: var(--encre-douce); }
+.puce.active { background: var(--encre); border-color: var(--encre); color: var(--brume); }
+
+/* ---------- la regle des mouvements ---------- */
+
+.regle { margin-bottom: 32px; }
+
+.titre-section {
+  font-family: var(--police-titres);
+  font-weight: 800;
+  font-stretch: 110%;
+  font-size: 18px;
+  margin: 0 0 12px;
+}
+
+.liste-mouvements { list-style: none; margin: 0; padding: 0; }
+
+.mouvement {
+  display: grid;
+  grid-template-columns: 64px 3px 1fr auto;
+  gap: 14px;
+  align-items: center;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--filet);
+}
+
+.mouvement-date {
+  font-family: var(--police-montants);
+  font-size: 13px;
+  color: var(--encre-douce);
+  white-space: nowrap;
+}
+
+.mouvement-barre { width: 3px; height: 22px; border-radius: 2px; }
+.barre-debit { background: var(--debit); }
+.barre-credit { background: var(--credit); }
+
+.mouvement-libelle { font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
+
+.mouvement-montant {
+  font-family: var(--police-montants);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.texte-debit { color: var(--debit); }
+.texte-credit { color: var(--credit); }
+
+.badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--accent-clair);
+  color: var(--accent);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 600;
+  vertical-align: 1px;
+}
+
+/* ---------- pages listes ---------- */
+
+.titre-page {
+  font-family: var(--police-titres);
+  font-weight: 800;
+  font-stretch: 115%;
+  font-size: 26px;
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+.titre-page.nomargin { margin: 0; }
+
+.intro { color: var(--encre-douce); margin: 0 0 24px; max-width: 560px; }
+
+.liste-cartes { list-style: none; margin: 0; padding: 0; }
+
+.carte-ligne {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 14px;
+  align-items: center;
+  background: var(--papier);
+  border: 1px solid var(--filet);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+}
+
+.carte-ligne.inactive { opacity: 0.5; }
+
+.detail-frequence { color: var(--encre-douce); font-size: 13px; }
+.actions-ligne { display: flex; gap: 12px; }
+
+/* ---------- calendrier ---------- */
+
+.titre-mois {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin: 0 0 20px;
+}
+
+.fleche {
+  font: inherit;
+  font-size: 24px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--filet);
+  background: var(--papier);
+  color: var(--encre);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.fleche:hover { background: var(--accent-clair); }
+
+.recap-mois {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: flex-start;
+  background: var(--papier);
+  border: 1px solid var(--filet);
+  border-radius: 14px;
+  padding: 18px 22px;
+  margin-bottom: 20px;
+}
+
+.recap-bloc { min-width: 100px; }
+
+.recap-valeur {
+  font-family: var(--police-montants);
+  font-variant-numeric: tabular-nums;
+  font-size: 22px;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.cycle-choix { margin-left: auto; max-width: 320px; }
+
+.bascule {
+  display: inline-flex;
+  border: 1px solid var(--filet);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--brume);
+}
+
+.bascule button {
+  font-family: var(--police-titres);
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: var(--encre-douce);
+  padding: 6px 14px;
+  cursor: pointer;
+}
+
+.bascule button.actif { background: var(--encre); color: var(--brume); }
+
+.calendrier {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  background: var(--filet);
+  border: 1px solid var(--filet);
+  border-radius: 12px;
+  padding: 4px;
+  overflow: hidden;
+}
+
+.entete-jour {
+  background: var(--brume);
+  padding: 6px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--encre-douce);
+  text-align: center;
+}
+
+.cellule {
+  min-width: 0;
+  min-height: 92px;
+  overflow: hidden;
+  background: var(--papier);
+  border: none;
+  border-radius: 6px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  color: var(--encre);
+}
+
+.cellule:hover { background: var(--accent-clair); }
+.cellule.vide { background: var(--brume); cursor: default; }
+.cellule.aujourdhui { outline: 2px solid var(--accent); outline-offset: -2px; }
+.cellule.solde-negatif { background: color-mix(in srgb, var(--debit) 12%, var(--papier)); }
+
+.numero {
+  font-family: var(--police-montants);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--encre-douce);
+}
+
+.pastille {
+  display: block;
+  max-width: 100%;
+  min-width: 0;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 1px 5px;
+  border-radius: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pastille.debit { background: color-mix(in srgb, var(--debit) 18%, transparent); color: var(--debit); }
+.pastille.credit { background: color-mix(in srgb, var(--credit) 18%, transparent); color: var(--credit); }
+.pastille-plus { font-size: 10px; color: var(--encre-douce); padding-left: 4px; }
+
+.solde-jour {
+  margin-top: auto;
+  font-family: var(--police-montants);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--encre-douce);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.solde-jour.negatif { color: var(--debit); }
+
+.agenda-solde {
+  font-family: var(--police-montants);
+  color: var(--encre-douce);
+  margin: 4px 0 16px;
+}
+
+/* ---------- assistant banque ---------- */
+
+.etapes { list-style: none; margin: 0; padding: 0; counter-reset: etape; }
+
+.etape {
+  counter-increment: etape;
+  background: var(--papier);
+  border: 1px solid var(--filet);
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  opacity: 0.55;
+}
+
+.etape.courante { opacity: 1; border-color: var(--accent); }
+.etape.faite { opacity: 0.8; }
+
+.etape h2 {
+  font-family: var(--police-titres);
+  font-weight: 700;
+  font-size: 16px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.etape h2::before {
+  content: counter(etape);
+  font-family: var(--police-montants);
+  font-size: 13px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--brume);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.etape.courante h2::before { background: var(--accent); color: var(--papier); }
+.etape.faite h2::before { content: "\2713"; background: var(--credit); color: var(--papier); }
+
+.etape-corps { margin-top: 12px; }
+.etape-resume { margin: 8px 0 0; color: var(--encre-douce); }
+
+.liste-conseils { margin: 8px 0; padding-left: 20px; }
+.liste-conseils li { margin-bottom: 6px; }
+
+.copiable {
+  display: inline-block;
+  background: var(--brume);
+  border: 1px dashed var(--encre-douce);
+  border-radius: 6px;
+  padding: 2px 8px;
+  cursor: copy;
+  font-family: var(--police-montants);
+  font-size: 12px;
+  margin-left: 6px;
+  overflow-wrap: anywhere;
+}
+
+.avertissement {
+  background: var(--alerte-fond);
+  border-left: 3px solid var(--alerte-bord);
+  padding: 10px 14px;
+  border-radius: 0 8px 8px 0;
+}
+
+.note { color: var(--encre-douce); font-size: 13px; margin: 4px 0 12px; }
+
+.filtres-banques { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.filtres-banques input { flex: 1 1 200px; }
+
+.liste-banques {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.carte-banque {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--brume);
+  border: 1px solid var(--filet);
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  color: var(--encre);
+}
+
+.carte-banque:hover { border-color: var(--accent); background: var(--accent-clair); }
+.carte-banque img { width: 26px; height: 26px; object-fit: contain; border-radius: 4px; }
+
+/* ---------- parametres ---------- */
+
+.carte-parametre {
+  background: var(--papier);
+  border: 1px solid var(--filet);
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+
+.choix-theme {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.vignette-theme {
+  font: inherit;
+  color: var(--encre);
+  background: var(--brume);
+  border: 2px solid var(--filet);
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.vignette-theme.active { border-color: var(--accent); }
+.vignette-theme strong { font-family: var(--police-titres); }
+
+.apercu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.apercu-marque { font-family: var(--police-titres); font-weight: 800; }
+.apercu-montant { font-family: var(--police-montants); }
+
+.apercu-sombre { background: #182320; color: #e7ede9; }
+.apercu-sombre .apercu-montant { color: #4dbf90; }
+.apercu-clair { background: #ffffff; color: #14201b; border: 1px solid #d9e2dd; }
+.apercu-clair .apercu-montant { color: #157a55; }
+
+.ligne-champ { display: flex; gap: 10px; align-items: center; margin: 8px 0; flex-wrap: wrap; }
+.ligne-champ input { flex: 1 1 240px; }
+
+.ligne-interrupteur { display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 10px; }
+.ligne-interrupteur input { width: 18px; height: 18px; accent-color: var(--accent); }
+
+.resume-seuil {
+  padding: 8px 12px;
+  background: var(--brume);
+  border-radius: 8px;
+  font-size: 14px;
+  margin: 8px 0;
+}
+.resume-seuil.seuil-alerte { background: var(--alerte-fond); color: var(--debit); }
+
+/* ---------- connexion ---------- */
+
+.ecran-connexion {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.carte-connexion {
+  width: 100%;
+  max-width: 380px;
+  background: var(--papier);
+  border: 1px solid var(--filet);
+  border-radius: 18px;
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sous-titre { margin: 0; color: var(--encre-douce); }
+
+/* ---------- elements communs ---------- */
+
+.formulaire { display: flex; flex-direction: column; gap: 14px; }
+
+.formulaire label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--encre-douce);
+}
+
+.formulaire label em { font-weight: 400; }
+
+input, select {
+  font: inherit;
+  padding: 9px 12px;
+  border: 1px solid var(--filet);
+  border-radius: 9px;
+  background: var(--papier);
+  color: var(--encre);
+}
+
+input::placeholder { color: var(--encre-douce); opacity: 0.7; }
+
+input:focus-visible, select:focus-visible, button:focus-visible, a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.bouton {
+  font: inherit;
+  font-weight: 700;
+  background: var(--encre);
+  color: var(--brume);
+  border: none;
+  border-radius: 999px;
+  padding: 10px 22px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.bouton:hover { background: color-mix(in srgb, var(--encre) 85%, black); }
+.bouton:disabled { opacity: 0.5; cursor: default; }
+
+.bouton.secondaire {
+  background: transparent;
+  color: var(--encre);
+  border: 1.5px solid var(--encre);
+}
+
+.bouton-texte {
+  font: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.bouton-texte.danger { color: var(--debit); }
+.bouton-texte:disabled { color: var(--encre-douce); cursor: default; }
+
+.message-erreur {
+  background: var(--alerte-fond);
+  color: var(--debit);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 10px 0;
+}
+
+.message-info {
+  background: var(--accent-clair);
+  color: var(--accent);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 10px 0;
+}
+
+.vide { color: var(--encre-douce); font-style: italic; }
+.attente { color: var(--encre-douce); padding: 40px 0; text-align: center; }
+
+.ecran-attente {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  font-family: var(--police-titres);
+  font-weight: 800;
+  font-size: 24px;
+  color: var(--encre-douce);
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 700px) {
+  .entete { gap: 12px; }
+  .nav { order: 3; width: 100%; }
+  .mouvement { grid-template-columns: 52px 3px 1fr auto; gap: 8px; }
+  .carte-ligne { grid-template-columns: 1fr auto; }
+  .actions-ligne { grid-column: 1 / -1; }
+  .recap-mois { gap: 16px; }
+  .cycle-choix { margin-left: 0; width: 100%; }
+  .cellule { min-height: 68px; padding: 4px; }
+  .pastille { font-size: 9px; padding: 0 3px; }
+  .solde-jour { font-size: 10px; }
+  .choix-theme { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+/* ---------- import bancaire ---------- */
+
+.liste-import { list-style: none; margin: 0; padding: 0; }
+
+.ligne-import {
+  display: grid;
+  grid-template-columns: 72px 1fr auto auto;
+  gap: 14px;
+  align-items: center;
+  background: var(--papier);
+  border: 1px solid var(--filet);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 6px;
+}
+
+.ligne-import .mouvement-libelle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actions-import {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.bouton.petit {
+  padding: 5px 12px;
+  font-size: 13px;
+}
+
+.actions-modal {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.note-inline {
+  display: block;
+  font-style: normal;
+  font-size: 12px;
+  color: var(--encre-douce);
+  margin-top: 4px;
+  font-weight: 400;
+}
+
+@media (max-width: 700px) {
+  .ligne-import {
+    grid-template-columns: 64px 1fr auto;
+    row-gap: 8px;
+  }
+  .ligne-import .actions-import {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+}
+
+/* ---------- import : groupes par jour + badges ---------- */
+
+.groupe-jour { margin-bottom: 20px; }
+
+.jour-titre {
+  font-family: var(--police-titres);
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--encre-douce);
+  margin: 0 0 6px;
+  padding: 0 4px;
+}
+
+.ligne-import {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 14px;
+  align-items: center;
+  background: var(--papier);
+  border: 1px solid var(--filet);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 4px;
+}
+
+.ligne-import .mouvement-libelle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.badge.auto {
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+  color: var(--accent);
+}
+
+.badge.deja {
+  background: color-mix(in srgb, var(--credit) 22%, transparent);
+  color: var(--credit);
+}
+
+.badge.tag {
+  background: var(--brume);
+  color: var(--encre-douce);
+}
+
+/* ---------- regles ---------- */
+
+.liste-regles { list-style: none; margin: 0; padding: 0; }
+
+.carte-regle {
+  background: var(--papier);
+  border: 1px solid var(--filet);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 8px;
+}
+
+.carte-regle-tete {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.carte-regle-tete strong {
+  font-family: var(--police-titres);
+  font-weight: 700;
+}
+
+.carte-regle-tete .bouton-texte { margin-left: auto; }
+
+.carte-regle-motif {
+  margin: 6px 0 0;
+  color: var(--encre-douce);
+  font-size: 13px;
+  font-family: var(--police-montants);
+}
+
+@media (max-width: 700px) {
+  .ligne-import {
+    grid-template-columns: 1fr auto;
+    row-gap: 8px;
+  }
+  .ligne-import .actions-import {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+}
+
+/* ---------- edition inline ---------- */
+
+.libelle-cliquable {
+  cursor: pointer;
+  border-bottom: 1px dashed transparent;
+  transition: border-color 0.15s;
+}
+.libelle-cliquable:hover { border-bottom-color: var(--accent); }
+
+.edition-inline {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.edition-inline input {
+  flex: 1 1 180px;
+  min-width: 120px;
+  padding: 5px 10px;
+}
+
+.edition-inline select {
+  padding: 5px 8px;
+}
+
+/* ---------- modal du jour : ajustement d'occurrence ---------- */
+
+.mouvement-modal {
+  grid-template-columns: 3px 1fr auto;
+  grid-template-rows: auto auto;
+  row-gap: 8px;
+}
+
+.mouvement-modal .actions-occurrence {
+  grid-column: 2 / -1;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.montant-original {
+  display: inline-block;
+  margin-left: 8px;
+  font-style: normal;
+  font-size: 12px;
+  color: var(--encre-douce);
+  font-family: var(--police-montants);
+}
+
+.input-montant {
+  width: 100px;
+  padding: 5px 10px;
+}
+
+/* ---------- champ inline avec label a gauche ---------- */
+
+.champ-inline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 10px 0;
+  flex-wrap: wrap;
+  color: var(--encre-douce);
+  font-size: 14px;
+}
+
+.champ-inline > span {
+  font-weight: 600;
+}
+
+.champ-inline select {
+  padding: 6px 10px;
+}
+
+/* ---------- Bloc d export CSV / Excel ---------- */
+
+.bloc-export { margin-top: 8px; }
+
+.export-raccourcis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 12px 0 4px;
+}
+
+.export-ligne {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  align-items: center;
+}
+
+.export-ligne .ligne-champ { margin: 8px 0; }
+.export-ligne .ligne-champ input { flex: 0 0 auto; }
+.export-ligne .ligne-interrupteur { margin-top: 0; }
+
+.export-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.export-actions .bouton:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* ---------- Bloc sauvegarde / transfert ---------- */
+
+.separateur-bloc {
+  border: 0;
+  border-top: 1px solid var(--filet);
+  margin: 22px 0 18px;
+}
+
+/* ==================================================================
+   v2.1 — courbe de solde, repartition, navigation mobile, squelettes
+   ================================================================== */
+
+/* ---------- accessibilite : lien d evitement + focus visible ---------- */
+
+.lien-evitement {
+  position: absolute;
+  left: -9999px;
+  top: 8px;
+  background: var(--papier);
+  color: var(--encre);
+  border: 1px solid var(--filet);
+  border-radius: 8px;
+  padding: 8px 14px;
+  z-index: 100;
+}
+
+.lien-evitement:focus { left: 20px; }
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ---------- courbe de solde ---------- */
+
+.courbe {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--filet);
+}
+
+.courbe-tete {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+  min-height: 20px;
+}
+
+.courbe-titre {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--encre-douce);
+}
+
+.courbe-lecture {
+  font-size: 13px;
+  color: var(--encre-douce);
+  font-variant-numeric: tabular-nums;
+}
+
+.courbe-lecture strong {
+  font-family: var(--police-montants);
+  color: var(--encre);
+}
+
+.courbe-detail {
+  display: block;
+  font-style: normal;
+  font-size: 12px;
+  color: var(--encre-douce);
+  max-width: 42ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.courbe-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: pan-y;
+  cursor: crosshair;
+}
+
+.courbe-etiquette {
+  font-family: var(--police-montants);
+  font-size: 11px;
+}
+
+/* ---------- repartition par categorie ---------- */
+
+.repartition { margin: 26px 0 8px; }
+
+.repartition-barre {
+  display: flex;
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--filet);
+  margin: 10px 0 14px;
+}
+
+.repartition-segment { display: block; height: 100%; }
+.repartition-segment + .repartition-segment { box-shadow: inset 1px 0 0 var(--papier); }
+
+.repartition-legende {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 6px 22px;
+}
+
+.repartition-legende li {
+  display: grid;
+  grid-template-columns: 10px 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  padding: 3px 0;
+}
+
+.repartition-pastille {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.repartition-nom { color: var(--encre); }
+
+.repartition-montant {
+  font-family: var(--police-montants);
+  font-variant-numeric: tabular-nums;
+}
+
+.repartition-part {
+  font-family: var(--police-montants);
+  color: var(--encre-douce);
+  min-width: 42px;
+  text-align: right;
+}
+
+/* ---------- reste a vivre par jour ---------- */
+
+.hero-parjour {
+  margin: 2px 0 0;
+  font-size: 14px;
+  color: var(--encre-douce);
+}
+
+.hero-parjour strong {
+  font-family: var(--police-montants);
+  color: var(--encre);
+}
+
+/* ---------- squelettes de chargement ---------- */
+
+.squelette {
+  background: linear-gradient(
+    90deg,
+    var(--filet) 25%,
+    var(--accent-clair) 50%,
+    var(--filet) 75%
+  );
+  background-size: 400% 100%;
+  animation: glisse 1.4s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+@keyframes glisse {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+
+.squelette-eyebrow { height: 13px; width: 220px; margin-bottom: 14px; }
+.squelette-montant { height: 56px; width: 60%; max-width: 340px; margin-bottom: 18px; }
+.squelette-ligne { height: 14px; width: 80%; }
+.squelette-courbe { height: 170px; width: 100%; margin-top: 20px; border-radius: 16px; }
+
+/* ---------- v2.3 : controle prevu / reel ---------- */
+
+.bandeau-controle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--accent-clair);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  text-decoration: none;
+  color: var(--encre);
+  font-size: 14px;
+}
+
+.bandeau-controle:hover { border-color: var(--encre); }
+.bandeau-controle span { color: var(--accent); font-weight: 600; white-space: nowrap; }
+
+.carte-controle {
+  background: var(--papier);
+  border: 1px solid var(--filet);
+  border-left: 3px solid var(--filet);
+  border-radius: 0 12px 12px 0;
+  padding: 14px 18px;
+  margin-bottom: 10px;
+}
+
+.carte-controle.statut-ecart { border-left-color: var(--debit); }
+.carte-controle.statut-manquant { border-left-color: var(--alerte-bord); }
+.carte-controle.statut-confirme { border-left-color: var(--credit); }
+
+.controle-tete {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.controle-libelle {
+  font-family: var(--police-titres);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.etiquette-statut {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--brume);
+  color: var(--encre-douce);
+}
+
+.etiquette-statut.s-ecart { background: var(--alerte-fond); color: var(--debit); }
+.etiquette-statut.s-manquant { background: var(--alerte-fond); color: var(--alerte-bord); }
+.etiquette-statut.s-confirme { background: var(--accent-clair); color: var(--credit); }
+
+.controle-source {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--encre-douce);
+}
+
+.controle-source em { font-style: normal; color: var(--encre); }
+
+.controle-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 14px;
+}
+
+/* ==================================================================
+   v2.4 — historique, fiabilite, refonte mobile (iPhone)
+   ================================================================== */
+
+.fiabilite {
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--filet);
+  font-size: 13px;
+  color: var(--encre-douce);
+}
+
+.fiabilite strong {
+  font-family: var(--police-montants);
+  color: var(--encre);
+}
+
+/* ---------- navigation : icones masquees sur grand ecran ---------- */
+
+.nav-icone { display: none; width: 24px; height: 24px; }
+.nav-icone-boite { display: contents; }
+.nav-pastille { display: none; }
+.nav-mobile { display: none; }
+.feuille, .feuille-voile { display: none; }
+
+/* ==================================================================
+   MOBILE
+   ================================================================== */
+
+@media (max-width: 760px) {
+
+  /* ---- confort de base ----
+     iOS Safari zoome sur tout champ dont la police descend sous 16px :
+     la page saute au premier tap et ne revient jamais tout a fait. */
+  input, select, textarea, button {
+    font-size: 16px;
+  }
+
+  * { -webkit-tap-highlight-color: transparent; }
+
+  body { overscroll-behavior-y: contain; }
+
+  .app {
+    padding: 0 16px calc(84px + env(safe-area-inset-bottom));
+  }
+
+  /* ---- entete allegee : la navigation est en bas ---- */
+
+  .entete {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+    padding: calc(12px + env(safe-area-inset-top)) 0 12px;
+    background: var(--brume);
+  }
+
+  .nav-bureau { display: none; }
+  .deconnexion-bureau { display: none; }
+
+  .marque { font-size: 20px; }
+
+  /* ---- barre du bas ---- */
+
+  .nav-mobile {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    background: var(--papier);
+    border-top: 1px solid var(--filet);
+    padding: 6px 4px calc(4px + env(safe-area-inset-bottom));
+    box-shadow: 0 -8px 24px rgb(0 0 0 / 0.08);
+  }
+
+  .nav-mobile .nav-lien {
+    flex: 1 1 0;
+    /* 48px de haut : la cible minimale confortable au pouce. */
+    min-height: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 4px 2px;
+    border: 0;
+    background: none;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--encre-douce);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .nav-mobile .nav-lien.actif { background: transparent; color: var(--accent); }
+  .nav-mobile .nav-lien:active { background: var(--accent-clair); }
+  .nav-mobile .nav-icone { display: block; }
+
+  .nav-icone-boite {
+    display: block;
+    position: relative;
+    line-height: 0;
+  }
+
+  .nav-pastille {
+    display: grid;
+    place-items: center;
+    position: absolute;
+    top: -4px;
+    right: -8px;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--debit);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  /* ---- feuille "Plus" ---- */
+
+  .feuille-voile {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    background: rgb(0 0 0 / 0.45);
+    animation: apparait 0.18s ease-out;
+  }
+
+  .feuille {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 61;
+    background: var(--papier);
+    border-radius: 20px 20px 0 0;
+    padding: 8px 16px calc(20px + env(safe-area-inset-bottom));
+    animation: monte 0.22s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .feuille-poignee {
+    display: block;
+    width: 38px;
+    height: 4px;
+    margin: 0 auto 16px;
+    border-radius: 999px;
+    background: var(--filet);
+  }
+
+  .feuille-grille {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .feuille-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 4px;
+    border-radius: 14px;
+    background: var(--brume);
+    color: var(--encre);
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .feuille-item:active { background: var(--accent-clair); }
+  .feuille-item .nav-icone { display: block; width: 22px; height: 22px; }
+
+  .feuille-deconnexion {
+    width: 100%;
+    margin-top: 16px;
+    padding: 14px;
+    border: 1px solid var(--filet);
+    border-radius: 14px;
+    background: none;
+    color: var(--encre);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .feuille-deconnexion em {
+    display: block;
+    font-style: normal;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--encre-douce);
+    margin-top: 2px;
+  }
+
+  @keyframes monte {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  @keyframes apparait {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* ---- respiration des ecrans ---- */
+
+  .hero { padding: 24px 20px; border-radius: 18px; }
+  .hero-montant { font-size: clamp(38px, 12vw, 52px); }
+  .hero-actions { gap: 10px; }
+  .hero-actions .bouton { flex: 1 0 auto; text-align: center; }
+
+  .titre-page { font-size: 26px; }
+
+  .mouvement { grid-template-columns: 52px 3px 1fr auto; gap: 8px; }
+  .carte-ligne { grid-template-columns: 1fr auto; }
+  .actions-ligne { grid-column: 1 / -1; }
+  .recap-mois { gap: 16px; }
+  .cycle-choix { margin-left: 0; width: 100%; }
+  .cellule { min-height: 68px; padding: 4px; }
+  .pastille { font-size: 9px; padding: 0 3px; }
+  .solde-jour { font-size: 10px; }
+  .choix-theme { grid-template-columns: 1fr; }
+  .repartition-legende { grid-template-columns: 1fr; }
+  .courbe-detail { max-width: 100%; }
+  .controle-actions .bouton { flex: 1 0 auto; }
+
+  /* Toute cible tapable atteint 44px, minimum confortable au doigt. */
+  .bouton, .puce, .bouton-texte {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feuille, .feuille-voile { animation: none; }
+}
+
+/* ==================================================================
+   v3 — sauvegardes, apprentissage, refonte des quatre onglets iPhone
+   ================================================================== */
+
+/* ---------- tirer pour rafraichir ---------- */
+
+.tirer-boite { position: relative; }
+
+.tirer-indicateur {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: var(--encre-douce);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.tirer-indicateur.tourne .tirer-texte { color: var(--accent); }
+
+.tirer-contenu { will-change: transform; }
+
+/* Le geste n existe pas a la souris : l indicateur ne doit jamais
+   reserver de place sur un ecran de bureau. */
+@media (hover: hover) and (pointer: fine) {
+  .tirer-indicateur { display: none; }
+}
+
+/* ---------- feuille basse (detail du jour) ---------- */
+
+.fb-voile {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 0.45);
+  padding: 20px;
+  animation: fb-apparait 0.18s ease-out;
+}
+
+.fb-carte {
+  width: 100%;
+  max-width: 560px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: var(--papier);
+  border: 1px solid var(--filet);
+  border-radius: 18px;
+  padding: 20px 22px 22px;
+}
+
+.fb-poignee { display: none; }
+
+.fb-tete { margin-bottom: 8px; }
+.fb-tete .hero-eyebrow { margin-bottom: 2px; }
+
+.fb-corps { margin-bottom: 16px; }
+
+.fb-fermer {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--filet);
+  border-radius: 12px;
+  background: none;
+  color: var(--encre);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.fb-fermer:hover { border-color: var(--encre-douce); }
+
+@keyframes fb-apparait { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fb-monte { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+/* ---------- hero : horizon et bandes ---------- */
+
+.horizon-puces {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 14px 0 18px;
+}
+
+.horizon-date {
+  border: 1px solid var(--filet);
+  background: var(--papier);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--encre-douce);
+}
+
+.hero-bandes {
+  display: flex;
+  gap: 10px;
+  margin: 0 0 20px;
+}
+
+.bande {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--filet);
+  border-radius: 12px;
+  min-width: 0;
+}
+
+.bande em {
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--encre-douce);
+}
+
+.bande strong {
+  font-family: var(--police-montants);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.bande i {
+  font-style: normal;
+  font-size: 11px;
+  color: var(--encre-douce);
+}
+
+.indice-geste { display: none; }
+
+/* ---------- mouvements groupes par jour ---------- */
+
+.jours { display: flex; flex-direction: column; gap: 18px; }
+
+.jour-bloc { }
+
+.jour-tete {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--filet);
+}
+
+.jour-nom {
+  font-family: var(--police-titres);
+  font-weight: 800;
+  font-size: 14px;
+  text-transform: capitalize;
+  letter-spacing: -0.01em;
+}
+
+.jour-net {
+  font-family: var(--police-montants);
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.mouvement-jour { grid-template-columns: 3px 1fr auto; }
+.jour-bloc .mouvement:last-child { border-bottom: 0; }
+
+/* ---------- calendrier : points au lieu des libelles ---------- */
+
+.points-jour { display: none; }
+
+.point {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+}
+
+.point.debit { background: var(--debit); }
+.point.credit { background: var(--credit); }
+
+.note-geste { display: none; }
+
+/* ---------- controle ---------- */
+
+.controle-barre {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.controle-duo {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+
+.duo-bloc {
+  flex: 1 1 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.duo-bloc em {
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--encre-douce);
+}
+
+.duo-bloc strong {
+  font-family: var(--police-montants);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.bandeau-appris {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--accent-clair);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.bandeau-appris span { color: var(--encre-douce); }
+.bandeau-appris a { color: var(--accent); }
+
+/* ---------- formulaire etiquete (ponctuel) ---------- */
+
+.formulaire-saisie {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  background: var(--papier);
+  border: 1px solid var(--filet);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 20px;
+}
+
+.champ {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.champ > span {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--encre-douce);
+}
+
+.champ-large { flex: 1 1 180px; }
+
+.resume-attente {
+  margin: 0 0 14px;
+  color: var(--encre-douce);
+  font-size: 14px;
+}
+
+.resume-attente strong {
+  font-family: var(--police-montants);
+  color: var(--encre);
+}
+
+/* ---------- liste des sauvegardes automatiques ---------- */
+
+.liste-sauvegardes {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+}
+
+.liste-sauvegardes li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 2px;
+  border-bottom: 1px solid var(--filet);
+}
+
+.liste-sauvegardes li:last-child { border-bottom: 0; }
+
+.sauvegarde-quand { flex: 1 1 auto; font-size: 14px; text-transform: capitalize; }
+
+.sauvegarde-poids {
+  font-family: var(--police-montants);
+  font-size: 12px;
+  color: var(--encre-douce);
+  white-space: nowrap;
+}
+
+/* ==================================================================
+   v3 — MOBILE
+   ================================================================== */
+
+@media (max-width: 760px) {
+
+  /* ---- feuille basse : elle monte du bas, pouce accessible ---- */
+
+  .fb-voile {
+    display: block;
+    padding: 0;
+  }
+
+  .fb-carte {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    max-width: none;
+    max-height: 85vh;
+    border: 0;
+    border-radius: 20px 20px 0 0;
+    padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
+    animation: fb-monte 0.22s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .fb-poignee {
+    display: block;
+    width: 38px;
+    height: 4px;
+    margin: 0 auto 14px;
+    border-radius: 999px;
+    background: var(--filet);
+  }
+
+  /* ---- hero ---- */
+
+  .hero-bandes { gap: 8px; }
+  .bande { padding: 8px 10px; }
+  .bande strong { font-size: 14px; }
+  .bande i { display: none; }
+
+  /* La synchro se fait au geste : le bouton ferait doublon et mangerait
+     la place juste sous le chiffre. */
+  .masquer-mobile { display: none; }
+
+  .indice-geste {
+    display: block;
+    font-size: 12px;
+    color: var(--encre-douce);
+  }
+
+  .horizon-puces { margin: 12px 0 16px; }
+  .horizon-puces .puce { min-height: 40px; }
+  .horizon-date { min-height: 40px; }
+
+  /* ---- jours ---- */
+
+  .jour-tete {
+    position: sticky;
+    top: calc(58px + env(safe-area-inset-top));
+    z-index: 5;
+    background: var(--brume);
+    padding-top: 4px;
+  }
+
+  .mouvement-jour { grid-template-columns: 3px 1fr auto; gap: 10px; }
+
+  /* ---- calendrier ---- */
+
+  /* A 50 px de large, un libelle tronque a trois lettres n apprend rien.
+     Les points disent ce qui compte a cette taille : combien de
+     mouvements, et dans quel sens. Le detail est a un tap. */
+  .cellule .pastille, .cellule .pastille-plus { display: none; }
+
+  .points-jour {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 3px 0;
+  }
+
+  .cellule { min-height: 62px; }
+  .cellule .numero { font-size: 14px; }
+
+  .note-geste {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  /* ---- controle : actions pleine largeur, empilees ---- */
+
+  .controle-barre { flex-direction: column; align-items: stretch; }
+  .controle-barre .bouton { width: 100%; }
+
+  .controle-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .controle-actions .bouton,
+  .controle-actions .bouton-texte { width: 100%; }
+
+  .duo-bloc strong { font-size: 15px; }
+
+  /* ---- formulaire ponctuel : deux colonnes, libelle sur toute la largeur ---- */
+
+  .formulaire-saisie {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .champ-large { grid-column: 1 / -1; }
+  .champ input, .champ select { width: 100%; }
+
+  .bouton-plein { grid-column: 1 / -1; width: 100%; }
+
+  /* ---- sauvegardes ---- */
+
+  .liste-sauvegardes li { flex-wrap: wrap; }
+  .sauvegarde-quand { flex: 1 1 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fb-voile, .fb-carte { animation: none; }
+}
+
+/* ==================================================================
+   v4 — bascule mot de passe, barre du bas recentree
+   ================================================================== */
+
+.champ-secret { display: flex; gap: 8px; align-items: stretch; }
+.champ-secret input { flex: 1 1 auto; min-width: 0; }
+
+.bascule-secret {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--filet);
+  border-radius: 10px;
+  background: none;
+  color: var(--encre-douce);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.bascule-secret:hover { color: var(--encre); border-color: var(--encre-douce); }
+
+/* Solde est au centre de la barre du bas : on le distingue pour qu il se
+   trouve sans lire les libelles. */
+@media (max-width: 760px) {
+  .nav-mobile .nav-centre .nav-icone-boite {
+    background: var(--accent);
+    border-radius: 999px;
+    padding: 7px 14px;
+    margin-top: -2px;
+  }
+  .nav-mobile .nav-centre .nav-icone { color: #fff; }
+  .nav-mobile .nav-centre.actif .nav-icone { color: #fff; }
+}
+
+.titre-sous-section {
+  font-family: var(--police-titres);
+  font-weight: 800;
+  font-size: 14px;
+  margin: 20px 0 4px;
+}
+
+.bloc-appareils { margin-top: 8px; }
+
+.liste-appareils { list-style: none; margin: 10px 0 0; padding: 0; }
+
+.liste-appareils li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 2px;
+  border-bottom: 1px solid var(--filet);
+}
+
+.liste-appareils li:last-child { border-bottom: 0; }
+
+.appareil-tete {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 180px;
+  min-width: 0;
+}
+
+.appareil-nom { font-size: 14px; overflow-wrap: anywhere; }
+
+.appareil-date {
+  font-style: normal;
+  font-size: 11px;
+  color: var(--encre-douce);
+}
+
+.appareil-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.input-nom { width: 100%; max-width: 260px; }
+
+.bouton-texte.danger { color: var(--debit); }
+
+@media (max-width: 760px) {
+  .liste-appareils li { flex-direction: column; align-items: stretch; gap: 8px; }
+  .appareil-actions { flex-direction: column; align-items: stretch; }
+  .liste-appareils select, .input-nom { width: 100%; max-width: none; }
+  .appareil-actions .bouton-texte { min-height: 40px; text-align: left; }
+}
+
+/* ==================================================================
+   v4.2 — scenarios et capacite d epargne
+   ================================================================== */
+
+.scenario-barre {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border: 1px dashed var(--filet);
+  border-radius: 12px;
+}
+
+.scenario-compare { margin: 0; font-size: 13px; color: var(--encre-douce); }
+.scenario-compare strong { font-family: var(--police-montants); color: var(--encre); }
+
+.carte-epargne {
+  border: 1px solid var(--filet);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 12px 12px 0;
+  padding: 16px 18px;
+  margin-bottom: 24px;
+}
+
+.epargne-montant {
+  font-family: var(--police-montants);
+  font-variant-numeric: tabular-nums;
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--accent);
+  margin: 2px 0 8px;
+}
+
+.carte-epargne .note { margin: 0; max-width: 60ch; }
+.carte-epargne .note strong { font-family: var(--police-montants); color: var(--encre); }
+
+.carte-scenario {
+  background: var(--papier);
+  border: 1px solid var(--filet);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+
+.scenario-effet {
+  font-family: var(--police-montants);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.lignes-scenario .formulaire-saisie { margin-bottom: 10px; }
+
+@media (max-width: 760px) {
+  .scenario-barre { flex-direction: column; align-items: stretch; }
+  .scenario-barre select { width: 100%; }
+  .epargne-montant { font-size: 28px; }
+}
+
+.mode-emploi {
+  margin: 0 0 20px;
+  padding-left: 20px;
+  max-width: 60ch;
+  color: var(--encre-douce);
+  line-height: 1.6;
+}
+
+.mode-emploi li { margin-bottom: 8px; }
+.mode-emploi strong { color: var(--encre); }
