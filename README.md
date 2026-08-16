@@ -13,7 +13,7 @@
 
 ---
 
-## Le problème
+-- Le problème
 
 Ton application bancaire affiche **1 240 €**.
 
@@ -194,6 +194,8 @@ Projet personnel, publié pour consultation. Aucune licence libre n'est accordé
 <p align="center">
   <sub>Construit sur un Raspberry Pi 3B+, parce qu'il était déjà allumé.</sub>
 </p>
-#   t l p r i c e  
- #   t l p r i c e  
+#   t l p r i c e 
+ 
+ #   t l p r i c e 
+ 
  
