@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.RestClientResponseException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 
@@ -32,6 +33,12 @@ public class GestionErreurs {
             .map(f -> f.getField() + " : " + f.getDefaultMessage())
             .findFirst().orElse("Donnees invalides");
         return ResponseEntity.badRequest().body(Map.of("message", message));
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Map<String, String>> statut(ResponseStatusException e) {
+        String message = e.getReason() != null ? e.getReason() : "Erreur " + e.getStatusCode().value();
+        return ResponseEntity.status(e.getStatusCode()).body(Map.of("message", message));
     }
 
     @ExceptionHandler(RestClientResponseException.class)

@@ -13,7 +13,7 @@
 
     <groupId>fr.tlprice</groupId>
     <artifactId>tlprice</artifactId>
-    <version>4.2.2</version>
+    <version>4.3.0</version>
     <name>tlprice</name>
     <description>Gestion de budget multi-utilisateurs avec synchronisation bancaire</description>
 
@@ -101,6 +101,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

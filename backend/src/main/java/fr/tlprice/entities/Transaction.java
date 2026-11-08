@@ -30,6 +30,8 @@ public class Transaction {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "utilisateur_id", nullable = false)
+    // Jamais serialise : l utilisateur porte le hash du mot de passe.
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private Utilisateur utilisateur;
 
     @NotBlank

@@ -21,6 +21,8 @@ public class Utilisateur {
     @Column(nullable = false)
     private String email;
 
+    /** Ne doit jamais sortir dans une reponse JSON, meme par ricochet. */
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @Column(nullable = false)
     private String motDePasseHash;
 

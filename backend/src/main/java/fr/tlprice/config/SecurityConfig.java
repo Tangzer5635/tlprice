@@ -2,6 +2,7 @@ package fr.tlprice.config;
 
 import fr.tlprice.repositories.UtilisateurRepository;
 import fr.tlprice.services.ChiffrementService;
+import fr.tlprice.services.ProtectionConnexionService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
+import org.springframework.security.web.header.writers.StaticHeadersWriter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
@@ -27,6 +31,7 @@ public class SecurityConfig {
     SecurityFilterChain chaine(HttpSecurity http,
                                UserDetailsService detailsService,
                                ChiffrementService chiffrement,
+                               ProtectionConnexionService protection,
                                @Value("${tlprice.connexion.duree-heures:48}") int dureeHeures)
             throws Exception {
 
@@ -37,17 +42,42 @@ public class SecurityConfig {
         gestionCsrf.setCsrfRequestAttributeName(null);
 
         http
+            // Frein au bruteforce : un client bloque recoit 429 avant tout BCrypt.
+            .addFilterBefore(new FiltreLimiteConnexion(protection),
+                UsernamePasswordAuthenticationFilter.class)
+            .headers(entetes -> entetes
+                // Tout est servi depuis la meme origine (polices comprises) :
+                // la CSP peut etre stricte. 'unsafe-inline' reste necessaire
+                // pour les attributs style="" poses par React. Les images
+                // https sont permises pour les logos des banques.
+                .contentSecurityPolicy(csp -> csp.policyDirectives(
+                    "default-src 'self'; script-src 'self'; "
+                    + "style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; "
+                    + "font-src 'self' data:; connect-src 'self'; worker-src 'self'; "
+                    + "manifest-src 'self'; object-src 'none'; base-uri 'self'; "
+                    + "form-action 'self'; frame-ancestors 'none'"))
+                .referrerPolicy(r -> r.policy(
+                    ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN))
+                .addHeaderWriter(new StaticHeadersWriter("Permissions-Policy",
+                    "camera=(), microphone=(), geolocation=(), payment=()")))
             .csrf(csrf -> csrf
                 .csrfTokenRepository(depotCsrf)
                 .csrfTokenRequestHandler(gestionCsrf))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/inscription", "/api/auth/login").permitAll()
+                .requestMatchers("/api/auth/inscription", "/api/auth/login",
+                    "/api/auth/config").permitAll()
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll())
             .formLogin(form -> form
                 .loginProcessingUrl("/api/auth/login")
-                .successHandler((req, res, a) -> res.setStatus(200))
-                .failureHandler((req, res, e) -> res.setStatus(401)))
+                .successHandler((req, res, a) -> {
+                    protection.succesConnexion(req);
+                    res.setStatus(200);
+                })
+                .failureHandler((req, res, e) -> {
+                    protection.echecConnexion(req);
+                    res.setStatus(401);
+                }))
             /*
              * Connexion persistante.
              *

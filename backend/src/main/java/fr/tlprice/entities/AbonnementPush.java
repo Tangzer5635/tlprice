@@ -27,6 +27,8 @@ public class AbonnementPush {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "utilisateur_id", nullable = false)
+    // Jamais serialise : l utilisateur porte le hash du mot de passe.
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private Utilisateur utilisateur;
 
     /** URL du service de push (web.push.apple.com pour iOS). Peut etre longue. */
