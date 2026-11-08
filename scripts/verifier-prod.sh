@@ -20,7 +20,10 @@ VERSION=$(docker compose logs "$SERVICE" 2>/dev/null \
   | grep -o 'Starting TlpriceApplication v[0-9.]*' | tail -1)
 if [ -n "$VERSION" ]; then
   info "$VERSION"
-  case "$VERSION" in *v4.*) ok "v4 en ligne" ;; *) ko "ce n est pas la v4 : l ancienne image tourne encore" ;; esac
+  case "$VERSION" in
+    *v4.[3-9]*|*v[5-9].*) ok "version a jour" ;;
+    *) ko "ancienne version : lance ./scripts/deployer.sh" ;;
+  esac
 else
   info "Version introuvable dans les logs (ils ont peut-etre ete tronques)."
 fi
@@ -38,6 +41,16 @@ esac
 docker compose ps --format '{{.Service}}' | grep -q '^autoheal$' \
   && ok "autoheal present" \
   || ko "autoheal absent : un conteneur fige ne sera pas redemarre (voir A_LIRE)"
+
+echo
+echo "== Exposition reseau =="
+PORTS=$(docker compose ps --format '{{.Ports}}' "$SERVICE" 2>/dev/null)
+case "$PORTS" in
+  *127.0.0.1:*) ok "port reserve au Pi lui-meme ($PORTS)" ;;
+  *0.0.0.0:*|*:::*) ko "port ouvert a tout le reseau local en HTTP clair ($PORTS)"
+                    info "Sauf besoin precis, retire TLPRICE_ECOUTE du .env." ;;
+  *) info "ports : ${PORTS:-aucun}" ;;
+esac
 
 echo
 echo "== Variables d environnement =="
@@ -61,8 +74,27 @@ done
 D=$(lire TLPRICE_CONNEXION_DUREE_HEURES)
 info "Duree de connexion : ${D:-48 (defaut)} h"
 
+INSC=$(lire TLPRICE_INSCRIPTION_OUVERTE)
+[ "$INSC" = "true" ] && ko "inscriptions OUVERTES : n importe qui peut creer un compte" \
+                     || ok "inscriptions fermees"
+
 echo
-echo "== Sauvegardes automatiques =="
+echo "== Sauvegardes PostgreSQL (hors volume Docker) =="
+DEST=$(grep -E '^TLPRICE_SAUVEGARDES=' .env 2>/dev/null | cut -d= -f2-)
+DEST=${DEST:-$HOME/tlprice-sauvegardes}
+DERNIER=$(ls -1t "$DEST"/tlprice-*.sql.gz 2>/dev/null | head -1)
+if [ -n "$DERNIER" ]; then
+  AGE=$(( ( $(date +%s) - $(stat -c %Y "$DERNIER") ) / 3600 ))
+  [ "$AGE" -le 26 ] && ok "dernier dump il y a ${AGE} h : $DERNIER" \
+                    || ko "dernier dump il y a ${AGE} h (cron arrete ?)"
+else
+  ko "aucun dump dans $DEST : lance ./scripts/sauvegarde-pg.sh et verifie le cron"
+fi
+crontab -l 2>/dev/null | grep -q sauvegarde-pg.sh && ok "cron de sauvegarde present" \
+  || ko "pas de cron de sauvegarde (voir docs/INSTALLATION-PI.md)"
+
+echo
+echo "== Sauvegardes automatiques (JSON, dans le volume) =="
 NB=$(docker compose exec -T "$SERVICE" sh -c 'ls -1 /app/data/sauvegardes/*.json 2>/dev/null | wc -l' | tr -d '\r ')
 if [ "${NB:-0}" -gt 0 ]; then
   ok "$NB sauvegarde(s) presente(s)"

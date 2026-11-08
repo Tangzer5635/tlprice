@@ -89,6 +89,8 @@ Sans banque compatible, l'application reste entièrement utilisable : le solde p
 
 Installée depuis l'écran d'accueil, tlprice se comporte comme une application native.
 
+Elle reste utilisable **hors ligne** : si le Pi est éteint ou le réseau absent, l'app s'ouvre quand même et affiche les dernières données connues, avec un bandeau qui en donne la date. Après un déploiement, un bandeau propose de recharger la nouvelle version.
+
 La barre du bas comporte cinq onglets, avec le solde au centre, sur le point le plus atteignable au pouce.
 
 Il suffit de tirer vers le bas pour synchroniser. Les feuilles basses sont privilégiées aux fenêtres centrées, parce qu'une modale au milieu de l'écran demande au pouce de remonter.
@@ -149,7 +151,7 @@ Aucune bibliothèque de composants n'est utilisée. Le CSS est écrit à la main
 
 ### Infrastructure
 
-Image Docker multi-étapes construite pour `linux/arm64`, tournant sur un Raspberry Pi 3B+ derrière un tunnel Cloudflare.
+Image Docker multi-étapes construite pour `linux/arm64` par GitHub Actions. Elle tourne sur un Raspberry Pi 3B+ derrière un tunnel Cloudflare, sans droits root dans le conteneur.
 
 Un `HEALTHCHECK` surveille la sonde de vivacité, avec un conteneur `autoheal`.
 
@@ -159,58 +161,25 @@ Docker marque le conteneur comme `unhealthy`, mais ne le redémarre pas de lui-m
 
 ## Installation
 
-### Production
+### Raspberry Pi (production)
+
+Le guide complet, en SSH, couvre l'installation neuve, la migration d'une installation existante, les sauvegardes et la restauration : **[docs/INSTALLATION-PI.md](docs/INSTALLATION-PI.md)**.
+
+En résumé, sur un Pi 3B+ (ou plus récent) sous Raspberry Pi OS 64-bit :
 
 ```bash
-git clone https://github.com/<toi>/tlprice.git
-cd tlprice
-
-cp .env.example .env
-# Puis remplis les variables nécessaires.
+git clone https://github.com/Tangzer5635/tlprice.git ~/tlprices && cd ~/tlprices && ./scripts/installer-pi.sh
 ```
 
-L'application écoute sur le port `8081`.
-
-Mets un reverse proxy HTTPS devant l'application. HTTPS est obligatoire : Enable Banking refuse les URL de renvoi en clair et le Web Push ne fonctionne pas sans HTTPS.
-
-Avec Caddy, deux lignes suffisent :
-
-```text
-tondomaine.fr {
-    reverse_proxy localhost:8081
-}
-```
-
-Génère les secrets ainsi :
+L'image arm64 est construite et publiée sur `ghcr.io` par GitHub Actions à chaque push sur `main`. Le Pi ne compile rien. Pour le mettre à jour :
 
 ```bash
-openssl rand -base64 32
-npx web-push generate-vapid-keys
+cd ~/tlprices && git pull && ./scripts/deployer.sh
 ```
 
-La première commande génère `TLPRICE_CLE_CHIFFREMENT`. La seconde génère les variables `TLPRICE_VAPID_*`.
+L'application écoute sur `127.0.0.1:8082`. Place devant un tunnel Cloudflare ou un reverse proxy HTTPS. HTTPS est obligatoire : Enable Banking refuse les URL de renvoi en clair et le Web Push ne fonctionne pas sans HTTPS.
 
-> ⚠️ La perte de `TLPRICE_CLE_CHIFFREMENT` rend les connexions bancaires et la configuration SMTP définitivement indéchiffrables.
-
-### Raspberry Pi
-
-Construis et publie l'image pour l'architecture ARM64 :
-
-```bash
-docker buildx build \
-  --platform linux/arm64 \
-  -t <compte>/tlprice:latest \
-  --push .
-```
-
-Puis, sur le Raspberry Pi :
-
-```bash
-docker compose pull
-docker compose up -d
-```
-
-Le script `scripts/verifier-prod.sh` contrôle la version en ligne, l'état de santé, les variables d'environnement et les sauvegardes.
+> ⚠️ La perte de `TLPRICE_CLE_CHIFFREMENT` rend les connexions bancaires et la configuration SMTP définitivement indéchiffrables. `scripts/sauvegarde-pg.sh` en garde une copie avec chaque sauvegarde.
 
 ### Développement
 
@@ -251,11 +220,15 @@ Les clés privées bancaires et la configuration SMTP sont chiffrées en AES-256
 
 Le cookie de connexion est signé avec une clé dérivée de la clé maîtresse par SHA-256, jamais avec la clé maîtresse elle-même. Deux usages distincts méritent deux secrets distincts.
 
-Les mots de passe sont hachés avec BCrypt.
+Les mots de passe sont hachés avec BCrypt et ne sortent jamais dans une réponse JSON.
+
+Les inscriptions sont fermées par défaut : seul le premier compte peut être créé librement. Les tentatives de connexion sont freinées (5 échecs par compte ou 20 par IP en 15 minutes). Une Content-Security-Policy stricte est appliquée, et les polices sont servies localement : aucun appel tiers.
 
 Toutes les requêtes sont isolées par utilisateur au niveau du service.
 
 Une sauvegarde JSON complète est écrite chaque nuit, en écriture atomique, avec une rotation sur 30 fichiers. Elle est téléchargeable depuis l'application.
+
+Un dump PostgreSQL complet est également écrit chaque nuit **hors des volumes Docker** (idéalement sur une clé USB), avec une copie hors site optionnelle via rclone.
 
 <br>
 
@@ -264,7 +237,10 @@ Une sauvegarde JSON complète est écrite chaque nuit, en écriture atomique, av
 - [ ] **Flyway** — migrations versionnées, avec `pg_dump -s` en référence de départ.
 - [ ] **Multi-comptes** — courant, livret et compte joint, avec projection consolidée.
 - [ ] **Import de fichier** — OFX et QIF, pour fonctionner avec n'importe quelle banque sans agrégateur.
-- [ ] **Cloudflare Access** — à placer devant l'application pour limiter le bruteforce.
+- [x] **Anti-bruteforce** — limitation des tentatives de connexion, inscriptions fermées.
+- [x] **CI / image arm64** — tests et image publiée sur GHCR par GitHub Actions.
+- [x] **Sauvegardes hors volume** — dump PostgreSQL quotidien, restauration scriptée.
+- [x] **Hors ligne** — l'app installée s'ouvre et affiche les dernières données sans réseau.
 - [ ] **Tests** — notamment sur `SoldeService`.
 
 <br>

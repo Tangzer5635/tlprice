@@ -1,28 +1,49 @@
+# tlprice — deploiement Raspberry Pi (arm64).
+#
+# Mise a jour :   ./scripts/deployer.sh      (pull + redemarrage + verification)
+# Sauvegarde :    ./scripts/sauvegarde-pg.sh (cron quotidien, voir docs/INSTALLATION-PI.md)
+#
+# Toute la configuration vient du fichier .env, a cote de ce fichier.
+
+x-journaux: &journaux
+  # Sans limite, les logs Docker grossissent indefiniment sur la carte SD :
+  # usure inutile et disque plein au bout de quelques mois.
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
 services:
   app:
-    build: .
+    # Image construite par GitHub Actions a chaque push sur main
+    # (.github/workflows/ci.yml). Surchargeable dans .env.
+    image: ${TLPRICE_IMAGE:-ghcr.io/tangzer5635/tlprice:latest}
     restart: unless-stopped
-    # Le HEALTHCHECK lui-meme est defini dans le Dockerfile : il suit donc
-    # l image, y compris sur le Pi qui utilise "image:" et non "build:".
+    <<: *journaux
+    # Le HEALTHCHECK est defini dans le Dockerfile : il suit l image.
     # Ce label dit a autoheal (ci-dessous) de surveiller ce conteneur.
     labels:
       autoheal: "true"
+    # 127.0.0.1 : l app n est joignable QUE depuis le Pi lui-meme, donc
+    # uniquement via le tunnel Cloudflare (ou Caddy). Avant, le port 8082
+    # etait ouvert a tout le reseau local, en HTTP clair.
+    # Si cloudflared tourne sur une AUTRE machine, mets TLPRICE_ECOUTE=0.0.0.0.
     ports:
-      - "8082:8081"
+      - "${TLPRICE_ECOUTE:-127.0.0.1}:${TLPRICE_PORT:-8082}:8081"
+    # Tout le .env est transmis : plus besoin d enumerer chaque variable
+    # (les MAIL_* n etaient jusqu ici jamais transmises au conteneur).
+    env_file: .env
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      TLPRICE_CLE_CHIFFREMENT: ${TLPRICE_CLE_CHIFFREMENT}
-      TLPRICE_REDIRECT_URL: ${TLPRICE_REDIRECT_URL}
-      TLPRICE_CONNEXION_DUREE_HEURES: ${TLPRICE_CONNEXION_DUREE_HEURES:-48}
-      TLPRICE_VAPID_CLE_PUBLIQUE: ${TLPRICE_VAPID_CLE_PUBLIQUE}
-      TLPRICE_VAPID_CLE_PRIVEE: ${TLPRICE_VAPID_CLE_PRIVEE}
-      TLPRICE_VAPID_SUJET: ${TLPRICE_VAPID_SUJET:-mailto:contact@tlprice.local}
       DB_HOST: db
       DB_NAME: tlprice
       DB_USER: tlprice
-      DB_PASSWORD: ${DB_PASSWORD}
     volumes:
       - donnees_app:/app/data
+    # Garde-fou : si la JVM depasse, c est elle qui est tuee, pas PostgreSQL
+    # ni le systeme du Pi.
+    mem_limit: 850m
     depends_on:
       db:
         condition: service_healthy
@@ -30,33 +51,60 @@ services:
   db:
     image: postgres:16-alpine
     restart: unless-stopped
+    <<: *journaux
     environment:
       POSTGRES_DB: tlprice
       POSTGRES_USER: tlprice
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+      TZ: Europe/Paris
+    # Reglages pour 1 Go de RAM et une carte SD :
+    #  - peu de connexions (l app en ouvre 5 au plus) et des buffers modestes ;
+    #  - checkpoints espaces : moins d ecritures sur la carte.
+    command:
+      - postgres
+      - -c
+      - max_connections=20
+      - -c
+      - shared_buffers=64MB
+      - -c
+      - effective_cache_size=256MB
+      - -c
+      - work_mem=4MB
+      - -c
+      - maintenance_work_mem=32MB
+      - -c
+      - checkpoint_timeout=15min
+      - -c
+      - max_wal_size=256MB
     volumes:
       - donnees_db:/var/lib/postgresql/data
+    mem_limit: 300m
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U tlprice"]
-      interval: 5s
-      timeout: 3s
+      test: ["CMD-SHELL", "pg_isready -U tlprice -d tlprice"]
+      interval: 10s
+      timeout: 5s
       retries: 10
 
   # Docker marque un conteneur "unhealthy" mais ne le redemarre pas de
   # lui-meme : restart: unless-stopped ne couvre que la mort du processus.
   # Ce petit conteneur comble le trou — il surveille les conteneurs portant
   # le label autoheal et redemarre ceux qui passent unhealthy.
-  # Il a besoin du socket Docker, monte en lecture seule.
   autoheal:
-    image: willfarrell/autoheal:latest
+    image: willfarrell/autoheal:1.2.0
     restart: unless-stopped
+    <<: *journaux
     environment:
       AUTOHEAL_CONTAINER_LABEL: autoheal
       AUTOHEAL_INTERVAL: 30
       AUTOHEAL_START_PERIOD: 300
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    mem_limit: 32m
 
 volumes:
+  # Les noms sont figes : renommer le dossier du projet ne doit pas faire
+  # « disparaitre » la base (Docker prefixe sinon par le nom du dossier).
   donnees_app:
+    name: ${TLPRICE_VOLUME_PREFIXE:-tlprices}_donnees_app
   donnees_db:
+    name: ${TLPRICE_VOLUME_PREFIXE:-tlprices}_donnees_db

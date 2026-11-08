@@ -1,0 +1,14 @@
+# Contexte de build minimal : ni dependances locales, ni secrets, ni git.
+.git
+.github
+.env
+.env.*
+!.env.example
+**/*.pem
+**/node_modules
+frontend/dist
+backend/target
+backend/data
+backend/.env
+docs
+*.log
