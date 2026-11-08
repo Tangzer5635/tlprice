@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { api, ErreurApi } from "../api";
 
 export default function Connexion({ onConnecte }: { onConnecte: (email: string) => void }) {
@@ -8,6 +8,16 @@ export default function Connexion({ onConnecte }: { onConnecte: (email: string) 
   const [motDePasseVisible, setMotDePasseVisible] = useState(false);
   const [erreur, setErreur] = useState("");
   const [enCours, setEnCours] = useState(false);
+  // Inscription fermee par defaut cote serveur : on ne propose le lien que
+  // si elle est possible (premiere installation, ou ouverte volontairement).
+  const [inscriptionOuverte, setInscriptionOuverte] = useState(false);
+
+  useEffect(() => {
+    api
+      .get("/api/auth/config")
+      .then((c) => setInscriptionOuverte(!!c?.inscriptionOuverte))
+      .catch(() => setInscriptionOuverte(false));
+  }, []);
 
   const soumettre = async (e: FormEvent) => {
     e.preventDefault();
@@ -24,6 +34,8 @@ export default function Connexion({ onConnecte }: { onConnecte: (email: string) 
     } catch (err) {
       if (err instanceof ErreurApi && err.statut === 401) {
         setErreur("Email ou mot de passe incorrect.");
+      } else if (err instanceof ErreurApi && err.statut === 429) {
+        setErreur(err.message || "Trop de tentatives. Reessaie plus tard.");
       } else {
         setErreur(err instanceof Error ? err.message : "Erreur inattendue");
       }
@@ -83,17 +95,19 @@ export default function Connexion({ onConnecte }: { onConnecte: (email: string) 
             {mode === "connexion" ? "Se connecter" : "Creer mon compte"}
           </button>
         </form>
-        <button
-          className="bouton-texte"
-          onClick={() => {
-            setMode(mode === "connexion" ? "inscription" : "connexion");
-            setErreur("");
-          }}
-        >
-          {mode === "connexion"
-            ? "Premiere fois ici ? Creer un compte"
-            : "Deja un compte ? Se connecter"}
-        </button>
+        {(inscriptionOuverte || mode === "inscription") && (
+          <button
+            className="bouton-texte"
+            onClick={() => {
+              setMode(mode === "connexion" ? "inscription" : "connexion");
+              setErreur("");
+            }}
+          >
+            {mode === "connexion"
+              ? "Premiere fois ici ? Creer un compte"
+              : "Deja un compte ? Se connecter"}
+          </button>
+        )}
       </div>
     </div>
   );

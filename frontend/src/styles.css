@@ -34,7 +34,7 @@
 }
 
 :root {
-  --police-titres: "Archivo", system-ui, sans-serif;
+  --police-titres: "Archivo Variable", "Archivo", system-ui, sans-serif;
   --police-montants: "IBM Plex Mono", ui-monospace, monospace;
   --police-texte: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -2116,3 +2116,30 @@ textarea:focus-visible {
 
 .mode-emploi li { margin-bottom: 8px; }
 .mode-emploi strong { color: var(--encre); }
+
+/* ---- Bandeaux d etat : hors ligne, nouvelle version ---- */
+
+.bandeau {
+  display: block;
+  width: 100%;
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.bandeau-hors-ligne {
+  background: var(--alerte-fond);
+  border: 1px solid var(--alerte-bord);
+  color: var(--encre);
+}
+
+.bandeau-maj {
+  background: var(--accent-clair);
+  border: 1px solid var(--accent);
+  color: var(--encre);
+  cursor: pointer;
+}

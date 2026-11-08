@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { api, euros, formatLocal } from "./api";
+import {
+  api,
+  euros,
+  formatLocal,
+  viderDonneesLocales,
+  EVT_EN_LIGNE,
+  EVT_HORS_LIGNE,
+  EVT_SESSION_EXPIREE,
+} from "./api";
 import { abonnementActuel } from "./push";
 import Connexion from "./pages/Connexion";
 import Tableau from "./pages/Tableau";
@@ -50,6 +58,16 @@ async function notifierAujourdhui() {
   }
 }
 
+/** "du 8 nov., 14:02" si la date du cache est connue, sinon "non actualisees". */
+function dateDonnees(entete: string): string {
+  const d = new Date(entete);
+  if (!entete || isNaN(d.getTime())) return "non actualisees";
+  return (
+    "du " +
+    d.toLocaleString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
+  );
+}
+
 const Icone = ({ d }: { d: string }) => (
   <svg
     className="nav-icone"
@@ -96,7 +114,51 @@ export default function App() {
   const [chargement, setChargement] = useState(true);
   const [ecarts, setEcarts] = useState(0);
   const [feuille, setFeuille] = useState(false);
+  /** null = en ligne ; sinon date (en-tete HTTP) des donnees affichees, ou "". */
+  const [horsLigne, setHorsLigne] = useState<string | null>(null);
+  const [miseAJour, setMiseAJour] = useState(false);
   const location = useLocation();
+
+  // Session expiree, serveur injoignable, retour en ligne.
+  useEffect(() => {
+    const expiree = () => {
+      viderDonneesLocales();
+      setEmail(null);
+    };
+    const coupe = (e: Event) => setHorsLigne(((e as CustomEvent).detail as string) || "");
+    const retour = () => setHorsLigne(null);
+    window.addEventListener(EVT_SESSION_EXPIREE, expiree);
+    window.addEventListener(EVT_HORS_LIGNE, coupe);
+    window.addEventListener(EVT_EN_LIGNE, retour);
+    return () => {
+      window.removeEventListener(EVT_SESSION_EXPIREE, expiree);
+      window.removeEventListener(EVT_HORS_LIGNE, coupe);
+      window.removeEventListener(EVT_EN_LIGNE, retour);
+    };
+  }, []);
+
+  // Nouvelle version deployee : le nouveau service worker a pris la main,
+  // mais la page tourne encore avec l ancien code. On le dit, sans forcer.
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return;
+    const avaitUnControleur = !!navigator.serviceWorker.controller;
+    const changement = () => {
+      if (avaitUnControleur) setMiseAJour(true);
+    };
+    navigator.serviceWorker.addEventListener("controllerchange", changement);
+    // Une PWA iOS peut rester des jours en memoire : on verifie au retour
+    // au premier plan s il y a une nouvelle version.
+    const visible = () => {
+      if (document.visibilityState === "visible") {
+        navigator.serviceWorker.getRegistration().then((r) => r?.update()).catch(() => {});
+      }
+    };
+    document.addEventListener("visibilitychange", visible);
+    return () => {
+      navigator.serviceWorker.removeEventListener("controllerchange", changement);
+      document.removeEventListener("visibilitychange", visible);
+    };
+  }, []);
 
   useEffect(() => {
     api
@@ -133,9 +195,28 @@ export default function App() {
   if (!email) return <Connexion onConnecte={(e) => setEmail(e)} />;
 
   const deconnecter = async () => {
-    await api.post("/api/auth/logout");
-    setEmail(null);
+    try {
+      await api.post("/api/auth/logout");
+    } finally {
+      await viderDonneesLocales();
+      setEmail(null);
+    }
   };
+
+  const bandeaux = (
+    <>
+      {horsLigne !== null && (
+        <div className="bandeau bandeau-hors-ligne" role="status">
+          Hors ligne — donnees {dateDonnees(horsLigne)}. Les modifications sont impossibles.
+        </div>
+      )}
+      {miseAJour && (
+        <button className="bandeau bandeau-maj" onClick={() => window.location.reload()}>
+          Nouvelle version disponible — toucher pour recharger
+        </button>
+      )}
+    </>
+  );
 
   const lien = (o: (typeof ONGLETS)[number], classe: string) => {
     const actif = location.pathname === o.chemin;
@@ -177,6 +258,8 @@ export default function App() {
           Se deconnecter
         </button>
       </header>
+
+      {bandeaux}
 
       <main className="contenu" id="contenu">
         <Routes>

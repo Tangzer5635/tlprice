@@ -22,32 +22,10 @@
     <meta name="apple-mobile-web-app-title" content="tlprice" />
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0f1613" media="(prefers-color-scheme: dark)" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
-    <script>
-      // Applique le theme AVANT le premier paint pour eviter le flash.
-      // Au premier lancement on suit la preference du systeme au lieu
-      // d imposer le theme sombre.
-      (function () {
-        var t = localStorage.getItem("tlprice-theme");
-        if (!t) {
-          t = window.matchMedia("(prefers-color-scheme: light)").matches
-            ? "clair"
-            : "sombre";
-        }
-        document.documentElement.setAttribute("data-theme", t);
-        // La barre du navigateur suit le theme choisi dans l app.
-        var couleur = t === "clair" ? "#ffffff" : "#0f1613";
-        var balises = document.querySelectorAll('meta[name="theme-color"]');
-        for (var i = 0; i < balises.length; i++) {
-          balises[i].setAttribute("content", couleur);
-        }
-      })();
-    </script>
+    <!-- Theme applique AVANT le premier paint (evite le flash). Fichier
+         externe et non script inline : la Content-Security-Policy du
+         serveur interdit tout script inline. -->
+    <script src="/theme.js"></script>
   </head>
   <body>
     <div id="root"></div>

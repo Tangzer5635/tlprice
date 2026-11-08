@@ -3,6 +3,7 @@ import { AlerteSolde, api, ConfigSmtp, ErreurApi, euros, ParametresApp } from ".
 import BlocSauvegarde from "../components/BlocSauvegarde";
 import BlocSauvegardesAuto from "../components/BlocSauvegardesAuto";
 import BlocAppareils from "../components/BlocAppareils";
+import BlocMotDePasse from "../components/BlocMotDePasse";
 import {
   abonnementActuel,
   activerPush,
@@ -598,6 +599,9 @@ export default function Parametres() {
       {/* ---- Sauvegarde / transfert entre instances ---- */}
       <BlocSauvegarde />
       <BlocSauvegardesAuto />
+
+      {/* ---- Securite du compte ---- */}
+      <BlocMotDePasse />
     </div>
   );
 }

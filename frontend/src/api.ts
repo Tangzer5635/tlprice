@@ -5,6 +5,26 @@ function lireCookie(nom: string): string | null {
   return m ? decodeURIComponent(m[1]) : null;
 }
 
+/**
+ * Evenements globaux, ecoutes par App :
+ *  - "tlprice:session-expiree" : une requete authentifiee a recu 401. Le
+ *    cookie de connexion a expire (ou le mot de passe a change ailleurs) :
+ *    on revient a l ecran de connexion au lieu d afficher « Erreur 401 »
+ *    sur chaque bloc.
+ *  - "tlprice:hors-ligne" : la reponse vient du cache du service worker,
+ *    le serveur est injoignable. detail = date de la donnee.
+ *  - "tlprice:en-ligne" : une vraie reponse du serveur est arrivee.
+ */
+export const EVT_SESSION_EXPIREE = "tlprice:session-expiree";
+export const EVT_HORS_LIGNE = "tlprice:hors-ligne";
+export const EVT_EN_LIGNE = "tlprice:en-ligne";
+
+const signaler = (nom: string, detail?: unknown) =>
+  window.dispatchEvent(new CustomEvent(nom, { detail }));
+
+/** Les routes d auth gerent leur 401 elles-memes (mauvais mot de passe...). */
+const routeAuth = (url: string) => url.startsWith("/api/auth/");
+
 export class ErreurApi extends Error {
   statut: number;
   constructor(statut: number, message: string) {
@@ -21,12 +41,33 @@ async function requete(methode: string, url: string, corps?: unknown, brut?: Bod
   }
   if (corps !== undefined) entetes["Content-Type"] = "application/json";
 
-  const reponse = await fetch(url, {
-    method: methode,
-    headers: entetes,
-    body: corps !== undefined ? JSON.stringify(corps) : brut,
-    credentials: "same-origin",
-  });
+  let reponse: Response;
+  try {
+    reponse = await fetch(url, {
+      method: methode,
+      headers: entetes,
+      body: corps !== undefined ? JSON.stringify(corps) : brut,
+      credentials: "same-origin",
+    });
+  } catch {
+    signaler(EVT_HORS_LIGNE, null);
+    throw new ErreurApi(0, "Serveur injoignable. Verifie ta connexion.");
+  }
+
+  const horsLigne = reponse.headers.get("X-Tlprice-Hors-Ligne");
+  if (horsLigne) signaler(EVT_HORS_LIGNE, horsLigne);
+  else if (reponse.status < 500) signaler(EVT_EN_LIGNE);
+
+  if (reponse.status === 401 && !routeAuth(url)) signaler(EVT_SESSION_EXPIREE);
+
+  if (reponse.status >= 500 && !horsLigne) {
+    // Cloudflare renvoie une page HTML quand le Pi ne repond pas.
+    const typeContenu = reponse.headers.get("Content-Type") || "";
+    if (!typeContenu.includes("json")) {
+      signaler(EVT_HORS_LIGNE, null);
+      throw new ErreurApi(reponse.status, "Serveur injoignable pour le moment.");
+    }
+  }
 
   if (!reponse.ok) {
     let message = "Erreur " + reponse.status;
@@ -198,3 +239,17 @@ export const LIBELLES_CATEGORIES: Record<string, string> = {
   ABONNEMENTS: "Abonnements", SANTE: "Sante", LOISIRS: "Loisirs",
   REVENUS: "Revenus", EPARGNE: "Epargne", AUTRE: "Autre",
 };
+
+/**
+ * Efface les donnees gardees hors ligne par le service worker. A appeler a
+ * la deconnexion : sur un appareil partage, la personne suivante ne doit
+ * pas pouvoir relire tes soldes en coupant le Wi-Fi.
+ */
+export async function viderDonneesLocales() {
+  try {
+    if ("caches" in window) await caches.delete("tlprice-api");
+    navigator.serviceWorker?.controller?.postMessage({ type: "vider-donnees" });
+  } catch {
+    /* rien a vider */
+  }
+}

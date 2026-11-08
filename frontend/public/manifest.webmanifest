@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "tlprice",
   "short_name": "tlprice",
   "description": "Ton solde projete, malgre le retard d affichage de ta banque.",
@@ -8,7 +9,7 @@
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0f1613",
-  "theme_color": "#14201b",
+  "theme_color": "#0f1613",
   "icons": [
     {
       "src": "/icone-192.png",
