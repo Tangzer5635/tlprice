@@ -230,10 +230,6 @@ export default function Import() {
     return (
       <div>
         <h1 className="titre-page">Import bancaire</h1>
-        <p className="intro">
-          Connecte d abord ta banque pour recuperer l historique de tes
-          transactions et remplir tlprice avec tes vraies operations.
-        </p>
         <Link to="/banque" className="bouton">Connecter ma banque</Link>
       </div>
     );
@@ -242,11 +238,6 @@ export default function Import() {
   return (
     <div>
       <h1 className="titre-page">Import bancaire</h1>
-      <p className="intro">
-        Convertis tes transactions en recurrentes (loyer, salaire, abonnements)
-        ou en ponctuelles. Quand tu renommes un libelle, tlprice retient la
-        regle et l applique automatiquement aux prochains imports.
-      </p>
 
       <div className="horizon-puces">
         <span className="etiquette">Periode</span>

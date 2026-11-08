@@ -23,18 +23,10 @@ export default function Regles() {
   return (
     <div>
       <h1 className="titre-page">Regles de renommage</h1>
-      <p className="intro">
-        Apprises automatiquement quand tu renommes une ligne a l import du
-        releve. Les prochains releves affichent directement le nom propre et
-        la categorie.
-      </p>
       {erreur && <p className="message-erreur">{erreur}</p>}
 
       {regles.length === 0 && (
-        <p className="vide">
-          Aucune regle pour l instant. Va dans l onglet Import et renomme un
-          libelle bancaire lors d une creation : la regle sera memorisee.
-        </p>
+        <p className="vide">Aucune regle.</p>
       )}
 
       <ul className="liste-regles">

@@ -294,11 +294,6 @@ export default function Parametres() {
       {/* ---- Seuil ---- */}
       <section className="carte-parametre">
         <h2 className="titre-section">Seuil d alerte</h2>
-        <p className="note">
-          Si ton solde projete des 30 prochains jours passe sous ce montant,
-          un avertissement s affiche sur le tableau de bord et dans le recap
-          email.
-        </p>
         {alerte && alerte.seuil !== null && (
           <p className={"resume-seuil " + (alerte.alerte ? "seuil-alerte" : "")}>
             Solde minimum sur 30 jours : <strong>{euros(alerte.soldeMinimum ?? 0)}</strong>
@@ -324,10 +319,6 @@ export default function Parametres() {
       {/* ---- Configuration SMTP ---- */}
       <section className="carte-parametre">
         <h2 className="titre-section">Configuration SMTP</h2>
-        <p className="note">
-          Pour recevoir le recap par email, entre ici les identifiants du
-          serveur d envoi. {smtp?.configuree && "Deja configure ✓"}
-        </p>
         <div className="ligne-champ" style={{ marginBottom: 12 }}>
           <span className="etiquette">Presets :</span>
           {Object.keys(PRESETS).map((nom) => (
@@ -409,17 +400,8 @@ export default function Parametres() {
       {/* ---- Solde du compte ---- */}
       <section className="carte-parametre">
         <h2 className="titre-section">Solde du compte</h2>
-        {banqueConnectee ? (
-          <div className="avertissement">
-            Ta banque est connectee : ce solde est ecrase a chaque
-            synchronisation. Ne le corrige ici que pour depanner, par exemple
-            si la banque renvoie un montant visiblement faux.
-          </div>
-        ) : (
-          <p className="note">
-            Sans banque connectee, c est ce chiffre qui sert de base a toutes
-            les projections. Reporte-le depuis ton appli bancaire.
-          </p>
+        {banqueConnectee && (
+          <div className="avertissement">Ecrase a chaque synchronisation bancaire.</div>
         )}
         <div className="ligne-champ">
           <input
@@ -434,9 +416,7 @@ export default function Parametres() {
             Enregistrer
           </button>
         </div>
-        {soldeMaj && (
-          <p className="note-inline">Derniere mise a jour : {soldeMaj}</p>
-        )}
+        
       </section>
 
       {/* ---- Recap email ---- */}
@@ -447,11 +427,6 @@ export default function Parametres() {
             Configure d abord ton SMTP ci-dessus pour activer le recap.
           </p>
         )}
-        <p className="note">
-          Un mail par jour a l heure que tu choisis : solde banque, projection
-          a 7 jours et mouvements de la semaine. Cette heure est independante
-          de celle des notifications iPhone.
-        </p>
         <div className="ligne-champ">
           <input
             type="email"
@@ -497,11 +472,6 @@ export default function Parametres() {
       {/* ---- Notifications push (iPhone / navigateur) ---- */}
       <section className="carte-parametre">
         <h2 className="titre-section">Notifications sur le telephone</h2>
-        <p className="note">
-          Un rappel par jour a l heure choisie, avec les prelevements du jour
-          et le solde projete. Envoye par le serveur : pas besoin d avoir
-          l app ouverte.
-        </p>
 
         {!pushServeur && (
           <p className="message-info">
@@ -588,10 +558,6 @@ export default function Parametres() {
               onAppareilCourantRetire={() => setPushAbonne(false)}
             />
 
-            <p className="note">
-              Chaque appareil s active separement et peut avoir sa propre heure.
-              Le contenu de la notification, lui, reste commun.
-            </p>
           </>
         )}
       </section>

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { api, AlerteSolde, dateFr, euros, formatLocal } from "../api";
 import CourbeSolde, { PointPasse } from "../components/CourbeSolde";
 import RepartitionCategories from "../components/RepartitionCategories";
@@ -63,7 +63,11 @@ export default function Tableau() {
   const [historique, setHistorique] = useState<PointPasse[]>([]);
   const [fiabilite, setFiabilite] = useState<any>(null);
   const [scenarios, setScenarios] = useState<{ id: number; nom: string }[]>([]);
-  const [scenarioActif, setScenarioActif] = useState<number | null>(null);
+  // ?scenario=ID : ouvert depuis le simulateur, le scenario est deja applique.
+  const [params] = useSearchParams();
+  const [scenarioActif, setScenarioActif] = useState<number | null>(
+    params.get("scenario") ? Number(params.get("scenario")) : null
+  );
   // Projection reelle conservee a part : c est la comparaison qui a du sens,
   // pas le chiffre du scenario tout seul.
   const [projectionReelle, setProjectionReelle] = useState<Projection | null>(null);
@@ -166,16 +170,15 @@ export default function Tableau() {
     <TirerPourRafraichir onRafraichir={synchroniser} actif={connectee}>
       {alerte && alerte.alerte && (
         <div className="bandeau-alerte">
-          <strong>Alerte seuil :</strong> ton solde projete descendra a{" "}
-          <strong>{euros(alerte.soldeMinimum ?? 0)}</strong>
+          ⚠ <strong>{euros(alerte.soldeMinimum ?? 0)}</strong>
           {alerte.dateMinimum && " le " + dateFr(alerte.dateMinimum)}
-          {", sous ton seuil de " + euros(alerte.seuil ?? 0)}.
+          {" · seuil " + euros(alerte.seuil ?? 0)}
         </div>
       )}
       {ecarts > 0 && (
         <Link to="/controle" className="bandeau-controle">
           <strong>
-            {ecarts} {ecarts > 1 ? "ecarts" : "ecart"} entre tes previsions et ta banque
+            {ecarts} {ecarts > 1 ? "ecarts" : "ecart"} a verifier
           </strong>
           <span>Verifier →</span>
         </Link>
@@ -212,27 +215,28 @@ export default function Tableau() {
         </div>
 
         {scenarios.length > 0 && (
-          <div className="scenario-barre">
-            <label className="champ-inline">
-              <span>Scenario</span>
-              <select
-                value={scenarioActif === null ? "" : String(scenarioActif)}
-                onChange={(e) =>
-                  setScenarioActif(e.target.value === "" ? null : Number(e.target.value))
-                }
+          <div className="scenario-barre" role="group" aria-label="Scenario">
+            <div className="horizon-puces">
+              <button
+                className={"puce" + (scenarioActif === null ? " active" : "")}
+                onClick={() => setScenarioActif(null)}
               >
-                <option value="">Aucun (projection reelle)</option>
-                {scenarios.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.nom}
-                  </option>
-                ))}
-              </select>
-            </label>
+                Reel
+              </button>
+              {scenarios.map((s) => (
+                <button
+                  key={s.id}
+                  className={"puce puce-scenario" + (scenarioActif === s.id ? " active" : "")}
+                  onClick={() => setScenarioActif(scenarioActif === s.id ? null : s.id)}
+                >
+                  {s.nom}
+                </button>
+              ))}
+            </div>
             {scenarioActif !== null && projectionReelle && (
               <p className="scenario-compare">
-                Sans ce scenario : <strong>{euros(projectionReelle.soldeProjete)}</strong>
-                {" · "}
+                Reel <strong>{euros(projectionReelle.soldeProjete)}</strong>
+                {" → "}
                 <span
                   className={
                     projection.soldeProjete < projectionReelle.soldeProjete
@@ -270,7 +274,6 @@ export default function Tableau() {
               <button className="bouton masquer-mobile" onClick={synchroniser} disabled={sync}>
                 {sync ? "Synchronisation…" : "Synchroniser avec ma banque"}
               </button>
-              <span className="indice-geste">Tire la page vers le bas pour synchroniser</span>
             </>
           ) : (
             <Link to="/banque" className="bouton secondaire">
@@ -326,9 +329,8 @@ export default function Tableau() {
 
         {fiabilite && fiabilite.ecart !== null && (
           <p className="fiabilite">
-            Il y a un mois, tlprice annoncait{" "}
-            <strong>{euros(fiabilite.annonce)}</strong> pour aujourd hui.
-            Constate : <strong>{euros(fiabilite.constate)}</strong>{" "}
+            Prevu il y a 1 mois <strong>{euros(fiabilite.annonce)}</strong>
+            {" · "}reel <strong>{euros(fiabilite.constate)}</strong>{" "}
             <span className={fiabilite.ecart >= 0 ? "texte-credit" : "texte-debit"}>
               ({fiabilite.ecart >= 0 ? "+" : "−"} {euros(Math.abs(fiabilite.ecart))})
             </span>
@@ -340,17 +342,21 @@ export default function Tableau() {
         <section className="carte-epargne">
           <p className="hero-eyebrow">Capacite d epargne</p>
           <p className="epargne-montant">{euros(capacite.capacite)}</p>
-          <p className="note">
-            Ce que tu peux virer ailleurs sans passer sous{" "}
-            {capacite.seuilConfigure ? (
-              <>ton seuil de <strong>{euros(capacite.seuil)}</strong></>
-            ) : (
-              <>zero (aucun seuil configure)</>
-            )}{" "}
-            d ici le {dateFr(capacite.horizon)}. Ton solde descend au plus bas a{" "}
-            <strong>{euros(capacite.creux)}</strong> le {dateFr(capacite.dateCreux)} :
-            c est ce creux qui fixe la limite, pas le solde d aujourd hui.
-          </p>
+          <div className="hero-bandes">
+            <span className="bande">
+              <em>Point bas</em>
+              <strong>{euros(capacite.creux)}</strong>
+              <i>{dateFr(capacite.dateCreux)}</i>
+            </span>
+            <span className="bande">
+              <em>Seuil</em>
+              <strong>{euros(capacite.seuil)}</strong>
+            </span>
+            <span className="bande">
+              <em>Jusqu au</em>
+              <strong>{dateFr(capacite.horizon)}</strong>
+            </span>
+          </div>
         </section>
       )}
 
@@ -359,10 +365,7 @@ export default function Tableau() {
       <section className="regle">
         <h2 className="titre-section">D ici la</h2>
         {parJour.length === 0 ? (
-          <p className="vide">
-            Aucun mouvement prevu sur la periode. Ajoute tes operations
-            recurrentes pour que la projection ait du sens.
-          </p>
+          <p className="vide">Aucun mouvement prevu.</p>
         ) : (
           <div className="jours">
             {parJour.map((groupe) => (

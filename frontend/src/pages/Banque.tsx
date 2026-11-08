@@ -149,11 +149,6 @@ export default function Banque() {
   return (
     <div>
       <h1 className="titre-page">Connexion bancaire</h1>
-      <p className="intro">
-        Chacun utilise sa propre application Enable Banking : tes identifiants
-        bancaires ne passent jamais par tlprice, et seule TA cle donne acces a
-        TON compte.
-      </p>
 
       {info && <p className="message-info">{info}</p>}
       {erreur && <p className="message-erreur">{erreur}</p>}
@@ -224,10 +219,6 @@ export default function Banque() {
                   required
                 />
               </label>
-              <p className="note">
-                La cle est stockee chiffree (AES-256) et ne sert qu a signer les
-                appels vers Enable Banking pour ton compte.
-              </p>
               <button className="bouton" disabled={envoiConfig || !fichierCle}>
                 {envoiConfig ? "Verification…" : "Enregistrer"}
               </button>

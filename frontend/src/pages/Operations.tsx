@@ -103,10 +103,6 @@ export default function Operations() {
   return (
     <div>
       <h1 className="titre-page">Operations recurrentes</h1>
-      <p className="intro">
-        Loyer, salaire, abonnements… tout ce qui tombe a date fixe et nourrit
-        la projection.
-      </p>
 
       {/* Champs etiquetes, comme l onglet Ponctuel : sur telephone ils
           s empilent en deux colonnes, et on sait dans quelle case on ecrit
@@ -218,7 +214,7 @@ export default function Operations() {
           </li>
         ))}
         {operations.length === 0 && (
-          <p className="vide">Aucune operation recurrente pour l instant.</p>
+          <p className="vide">Aucune operation.</p>
         )}
       </ul>
     </div>

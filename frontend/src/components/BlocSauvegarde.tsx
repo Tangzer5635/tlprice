@@ -73,16 +73,6 @@ export default function BlocSauvegarde() {
   return (
     <section className="carte-parametre">
       <h2 className="titre-section">Sauvegarde et transfert</h2>
-      <p className="note">
-        Recupere tes operations recurrentes, tes transactions ponctuelles et
-        tes regles de renommage dans un fichier, puis rejoue-le sur une autre
-        instance. Pratique pour passer ta saisie du poste local a la prod.
-      </p>
-      <p className="note-inline">
-        Les connexions bancaires et la configuration SMTP ne sont pas
-        exportees : elles sont chiffrees avec une cle propre a chaque
-        instance, elles doivent etre refaites sur place.
-      </p>
 
       <div className="export-actions">
         <button
@@ -109,11 +99,6 @@ export default function BlocSauvegarde() {
           <option value="remplacement">Remplacement (efface puis charge)</option>
         </select>
       </div>
-      <p className="note-inline">
-        {mode === "fusion"
-          ? "Les elements deja presents sont ignores : tu peux rejouer le meme fichier plusieurs fois sans creer de doublons."
-          : "Tout le contenu saisi de ce compte est efface avant le chargement."}
-      </p>
 
       <label className="ligne-interrupteur">
         <input

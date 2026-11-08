@@ -54,10 +54,6 @@ export default function BlocExport() {
   return (
     <div className="carte-parametre bloc-export">
       <p className="hero-eyebrow">Exporter</p>
-      <p className="note">
-        Recupere tes mouvements sur une periode, pour les impots, un tableur
-        ou simplement pour archiver.
-      </p>
 
       <div className="export-raccourcis">
         <button type="button" className="bouton-texte" onClick={() => periode(1)}>

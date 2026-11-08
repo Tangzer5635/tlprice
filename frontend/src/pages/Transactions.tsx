@@ -67,10 +67,6 @@ export default function Transactions() {
   return (
     <div>
       <h1 className="titre-page">Ponctuel</h1>
-      <p className="intro">
-        Un achat carte pas encore visible sur ton solde banque ? Note-le ici :
-        il est deduit de la projection jusqu a ce qu il apparaisse.
-      </p>
 
       {/* Champs etiquetes plutot qu une rangee de placeholders : sur
           telephone les champs s empilent, et un placeholder disparait des
@@ -163,10 +159,7 @@ export default function Transactions() {
           </li>
         ))}
         {transactions.length === 0 && (
-          <p className="vide">
-            Aucune transaction pour l instant. Ajoute un achat des que tu le
-            fais : c est ce qui empeche la projection de compter deux fois.
-          </p>
+          <p className="vide">Aucune transaction.</p>
         )}
       </ul>
 

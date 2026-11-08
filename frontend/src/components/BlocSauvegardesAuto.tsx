@@ -69,17 +69,6 @@ export default function BlocSauvegardesAuto() {
   return (
     <section className="carte-parametre">
       <h2 className="titre-section">Sauvegardes automatiques</h2>
-      <p className="note">
-        Chaque nuit a 3h15, le serveur ecrit une copie complete de ton compte
-        et ne garde que les 30 dernieres. C est le meme format que la
-        sauvegarde manuelle : tu peux rejouer n importe lequel de ces fichiers
-        via « Restaurer un fichier » juste au-dessus.
-      </p>
-      <p className="note-inline">
-        Ces fichiers vivent sur le meme disque que la base. Ils te protegent
-        d une fausse manoeuvre ou d une base corrompue, pas de la mort de la
-        carte SD — pour ca, rapatrie-les regulierement.
-      </p>
 
       <div className="export-actions">
         <button
@@ -96,10 +85,7 @@ export default function BlocSauvegardesAuto() {
       {erreur && <p className="message-erreur">{erreur}</p>}
 
       {fichiers.length === 0 ? (
-        <p className="note-inline">
-          Aucune sauvegarde pour l instant. La premiere sera ecrite cette nuit,
-          ou tout de suite avec le bouton ci-dessus.
-        </p>
+        <p className="vide">Aucune sauvegarde.</p>
       ) : (
         <ul className="liste-sauvegardes">
           {fichiers.map((f) => (

@@ -77,9 +77,6 @@ export default function BlocHeuresAppareils({ heureCompte }: Props) {
   return (
     <div className="bloc-appareils">
       <h3 className="titre-sous-section">Heure par appareil</h3>
-      <p className="note">
-        Sans reglage, un appareil suit l heure du compte ({hh(heureCompte)}).
-      </p>
 
       <ul className="liste-appareils">
         {appareils.map((a) => {

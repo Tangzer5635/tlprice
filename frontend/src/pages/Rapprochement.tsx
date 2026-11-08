@@ -83,12 +83,6 @@ export default function Rapprochement() {
   return (
     <div>
       <h1 className="titre-page">Controle</h1>
-      <p className="intro">
-        Ce que tlprice annoncait, face a ce que ta banque a reellement
-        debite. Les ecarts silencieux — un abonnement qui augmente de deux
-        euros, un loyer revalorise — sont ce qui fait deriver une projection
-        sans qu on s en apercoive.
-      </p>
 
       <div className="controle-barre">
         <button className="bouton" onClick={relancer} disabled={analyse}>
@@ -122,8 +116,8 @@ export default function Rapprochement() {
       ) : lignes.length === 0 ? (
         <p className="vide">
           {tout
-            ? "Aucune analyse enregistree. Lance l analyse pour confronter tes echeances a ta banque."
-            : "Rien a verifier. Tes echeances correspondent a tes debits."}
+            ? "Aucune analyse."
+            : "Rien a verifier ✓"}
         </p>
       ) : (
         <ul className="liste-cartes">
@@ -231,13 +225,6 @@ export default function Rapprochement() {
         </ul>
       )}
 
-      <p className="note">
-        Depuis la v3, confirmer une correction sur une ligne rapprochee « sur
-        le montant » cree automatiquement la regle de renommage
-        correspondante : le mois suivant, la correspondance est immediate.
-        Les regles apprises se consultent et se retirent dans{" "}
-        <Link to="/regles">Regles de renommage</Link>.
-      </p>
     </div>
   );
 }

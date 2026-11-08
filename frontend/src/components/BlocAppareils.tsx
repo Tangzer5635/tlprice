@@ -126,11 +126,6 @@ export default function BlocAppareils({ heureCompte, onAppareilCourantRetire }: 
   return (
     <div className="bloc-appareils">
       <h3 className="titre-sous-section">Appareils connectes</h3>
-      <p className="note">
-        Sans reglage, un appareil suit l heure du compte ({hh(heureCompte)}).
-        Un abonnement survit a la desinstallation de l app : si tu vois des
-        lignes en double, deconnecte les anciennes.
-      </p>
 
       <ul className="liste-appareils">
         {appareils.map((a) => {

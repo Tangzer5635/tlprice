@@ -42,10 +42,6 @@ export default function BlocMotDePasse() {
   return (
     <section className="carte-parametre">
       <p className="hero-eyebrow">Mot de passe</p>
-      <p className="note">
-        Le changer deconnecte tous tes autres appareils : utile si tu as perdu
-        un telephone.
-      </p>
       <form className="formulaire" onSubmit={soumettre}>
         {/* Champ cache : permet au trousseau iCloud d associer le nouveau
             mot de passe au bon compte. */}

@@ -773,7 +773,7 @@ input:focus-visible, select:focus-visible, button:focus-visible, a:focus-visible
 
 @media (max-width: 700px) {
   .ligne-import {
-    grid-template-columns: 64px 1fr auto;
+    grid-template-columns: 72px 1fr auto;
     row-gap: 8px;
   }
   .ligne-import .actions-import {
@@ -1633,8 +1633,9 @@ textarea:focus-visible {
   font-family: var(--police-montants);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
-  font-size: 15px;
-  overflow-wrap: anywhere;
+  font-size: clamp(12px, 3.4vw, 15px);
+  white-space: nowrap;
+  letter-spacing: -0.02em;
 }
 
 .bande i {
@@ -2052,14 +2053,13 @@ textarea:focus-visible {
 
 .scenario-barre {
   display: flex;
-  align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 4px;
   margin: 0 0 16px;
-  padding: 10px 12px;
-  border: 1px dashed var(--filet);
-  border-radius: 12px;
 }
+.scenario-barre .horizon-puces { margin: 0; }
+.puce-scenario { border-style: dashed; }
+.puce-scenario.active { border-style: solid; background: var(--accent); border-color: var(--accent); }
 
 .scenario-compare { margin: 0; font-size: 13px; color: var(--encre-douce); }
 .scenario-compare strong { font-family: var(--police-montants); color: var(--encre); }
@@ -2106,17 +2106,6 @@ textarea:focus-visible {
   .epargne-montant { font-size: 28px; }
 }
 
-.mode-emploi {
-  margin: 0 0 20px;
-  padding-left: 20px;
-  max-width: 60ch;
-  color: var(--encre-douce);
-  line-height: 1.6;
-}
-
-.mode-emploi li { margin-bottom: 8px; }
-.mode-emploi strong { color: var(--encre); }
-
 /* ---- Bandeaux d etat : hors ligne, nouvelle version ---- */
 
 .bandeau {
@@ -2143,3 +2132,185 @@ textarea:focus-visible {
   color: var(--encre);
   cursor: pointer;
 }
+
+/* ==================================================================
+   v4.3 — simulateur de scenarios
+   ================================================================== */
+
+.texte-doux { color: var(--encre-douce); font-family: var(--police-montants); }
+
+.onglets-scenarios {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  margin: 0 -4px 16px;
+  padding: 2px 4px 6px;
+  scrollbar-width: none;
+}
+.onglets-scenarios::-webkit-scrollbar { display: none; }
+.onglets-scenarios .puce { flex: 0 0 auto; padding: 8px 16px; font-size: 14px; }
+.puce-nouveau { border-style: dashed; color: var(--accent); }
+
+.verdict {
+  border-radius: 16px;
+  padding: 18px 18px 4px;
+  margin-bottom: 16px;
+  border: 1px solid var(--filet);
+  background: var(--papier);
+  --ton: var(--credit);
+}
+.verdict-seuil { --ton: var(--alerte-bord); background: var(--alerte-fond); }
+.verdict-decouvert { --ton: var(--debit); background: var(--alerte-fond); }
+
+.verdict-tete { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+
+.verdict-icone {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--papier);
+  background: var(--ton);
+}
+
+.verdict-titre {
+  margin: 0;
+  font-family: var(--police-titres);
+  font-weight: 800;
+  font-size: 22px;
+  line-height: 1.15;
+  color: var(--ton);
+}
+.verdict-sous { margin: 2px 0 0; font-size: 13px; color: var(--encre-douce); }
+.verdict .hero-bandes { margin-bottom: 14px; }
+
+.simulateur .hero { padding: 16px 16px 12px; }
+.simulateur .hero .horizon-puces { margin: 0 0 4px; }
+.comparaison { margin-top: 8px; padding-top: 8px; }
+
+.legende { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--encre-douce); }
+.legende-trait { display: inline-block; width: 18px; height: 3px; border-radius: 2px; margin-left: 6px; }
+.legende-trait:first-child { margin-left: 0; }
+.legende-reel { background: repeating-linear-gradient(90deg, var(--encre-douce) 0 5px, transparent 5px 8px); }
+.etiquette-evenement { font-weight: 600; }
+
+.editeur-scenario { display: flex; flex-direction: column; gap: 14px; }
+
+.nom-scenario {
+  width: 100%;
+  border: none;
+  border-bottom: 2px solid var(--filet);
+  border-radius: 0;
+  background: transparent;
+  padding: 6px 0;
+  font-family: var(--police-titres);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--encre);
+}
+.nom-scenario:focus { outline: none; border-bottom-color: var(--accent); }
+
+.lignes-hypotheses { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+
+.hypothese {
+  border: 1px solid var(--filet);
+  border-left: 4px solid var(--debit);
+  border-radius: 0 12px 12px 0;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.hypothese.est-credit { border-left-color: var(--credit); }
+
+.hypothese-ligne { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.hypothese-ligne input, .hypothese-ligne select { min-width: 0; }
+
+.sens {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: none;
+  font-size: 22px;
+  font-weight: 800;
+  cursor: pointer;
+  color: var(--papier);
+  background: var(--debit);
+}
+.est-credit .sens { background: var(--credit); }
+
+.hypothese-montant {
+  flex: 0 0 82px;
+  width: 82px;
+  font-family: var(--police-montants);
+  font-size: 18px;
+  font-weight: 600;
+}
+.hypothese-libelle { flex: 1 1 auto; }
+
+.retirer {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: transparent;
+  color: var(--encre-douce);
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.hypothese-quand { padding-left: 48px; flex-wrap: wrap; }
+.hypothese-quand input[type="date"], .hypothese-quand select { flex: 1 1 0; width: 0; min-width: 0; }
+.hypothese-total { flex-basis: 100%; text-align: right; }
+.verdict .bande strong { white-space: nowrap; }
+.hypothese-total { font-family: var(--police-montants); font-size: 13px; color: var(--encre-douce); }
+
+.ajouts { display: flex; gap: 8px; flex-wrap: wrap; }
+.ajouts .puce { padding: 8px 14px; font-size: 14px; }
+
+.chronologie { list-style: none; margin: 0; padding: 0; position: relative; }
+.chronologie::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: var(--filet);
+}
+.chrono-etape {
+  position: relative;
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  grid-template-areas: "date libelle montant" "date solde solde";
+  column-gap: 10px;
+  padding: 8px 0 8px 22px;
+  align-items: baseline;
+}
+.chrono-etape::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 13px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--papier);
+  border: 2px solid var(--accent);
+}
+.chrono-date { grid-area: date; font-size: 13px; color: var(--encre-douce); font-variant-numeric: tabular-nums; }
+.chrono-libelle { grid-area: libelle; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.chrono-montant { grid-area: montant; font-family: var(--police-montants); font-weight: 600; text-align: right; }
+.chrono-solde {
+  grid-area: solde;
+  justify-self: end;
+  font-family: var(--police-montants);
+  font-size: 13px;
+  color: var(--encre-douce);
+}
+.chrono-solde::before { content: "→ "; }
+.chrono-alerte { color: var(--debit); font-weight: 600; }

@@ -185,9 +185,6 @@ export default function Calendrier() {
             <button className={mode === "civil" ? "actif" : ""} onClick={() => setMode("civil")}>Mois civil</button>
             <button className={mode === "paie" ? "actif" : ""} onClick={() => setMode("paie")}>Cycle de paie</button>
           </div>
-          <p className="note">
-            {mode === "paie" ? "Du 25 au 24 du mois suivant." : "Du 1er au dernier jour du mois."}
-          </p>
         </div>
       </section>
 
